@@ -6,14 +6,10 @@ import game.Object.Position;
 import game.Object.Turn;
 import launcher.LearningServer;
 import org.apache.thrift.TException;
-import utils.JsonHelper;
-import utils.NeuralNetwork;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class LearningAI implements BaseAI {
     private final Turn myTurn;

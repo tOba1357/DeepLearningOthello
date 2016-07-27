@@ -52,7 +52,7 @@ public class NeuarlNetwork {
             this.biases = biases;
         }
 
-        public List<Double> calcu(final List<Double> in) {
+        private List<Double> calcu(final List<Double> in) {
             final List<Double> result = new ArrayList<>();
             for (int i = 0; i < weights.get(0).size(); i++) {
                 double ans = 0;
