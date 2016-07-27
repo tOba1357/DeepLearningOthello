@@ -67,10 +67,10 @@ class CalculatorHandler:
             self.x = tf.placeholder(tf.float32, [None, self.board_size], name='x-input')
             self.y_ = tf.placeholder(tf.float32, [None, self.out_put_size], name='y-input')
 
-        layer1 = nn_layer(self.x, self.board_size, self.board_size, 'layer1')
-        layer2 = nn_layer(layer1, self.board_size, self.board_size, 'layer2')
-        layer3 = nn_layer(layer2, self.board_size, self.board_size, 'layer3')
-        self.y = nn_layer(layer3, self.board_size, self.out_put_size, 'layer4', act=tf.nn.softmax)
+        self.layer1 = nn_layer(self.x, self.board_size, self.board_size, 'layer1')
+        self.layer2 = nn_layer(self.layer1, self.board_size, self.board_size, 'layer2')
+        self.layer3 = nn_layer(self.layer2, self.board_size, self.board_size, 'layer3')
+        self.y = nn_layer(self.layer3, self.board_size, self.out_put_size, 'layer4', act=tf.nn.softmax)
         # self.y = nn_layer(self.x, self.board_size, self.out_put_size, 'layer2', act=tf.nn.softmax)
         with tf.name_scope('cross_entropy'):
             diff = self.y_ * tf.log(self.y)
@@ -119,6 +119,11 @@ class CalculatorHandler:
     def load(self, file_name):
         self.saver.restore(self.session, file_name)
         print "load from " + file_name
+
+    def getWeight(self):
+        return [self.layer1, self.layer2, self.layer3]
+
+
 
 handler = CalculatorHandler()
 processor = LearningServer.Processor(handler)

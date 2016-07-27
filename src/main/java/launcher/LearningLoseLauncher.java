@@ -35,7 +35,7 @@ public class LearningLoseLauncher {
         final RandomAI whiteAI1 = new RandomAI(Turn.WHITE);
         final RandomAI blackAI2 = new RandomAI(Turn.BLACK);
 
-//        client.load(SAVE_FILE_NAME);
+        client.load(SAVE_FILE_NAME);
 
         for(int i = 0; ; i++) {
             final GameForLearning game = new GameForLearning(
@@ -54,7 +54,7 @@ public class LearningLoseLauncher {
                 if (game.getWinner() == null) {
                     drawCounter++;
                 }
-                if (++counter >= 500) {
+                if (++counter >= 50) {
                     System.out.println(i + ":" + drawCounter + "/" + j + "," + (counter - drawCounter) + "/" + j);
                     break;
                 }
@@ -74,7 +74,7 @@ public class LearningLoseLauncher {
                 if (game.getWinner() == null) {
                     drawCounter++;
                 }
-                if (++counter >= 500) {
+                if (++counter >= 50) {
                     System.out.println(i + ":" + drawCounter + "/" + j + "," + (counter - drawCounter) + "/" + j);
                     break;
                 }
