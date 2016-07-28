@@ -45,7 +45,9 @@ public class LearningServer {
 
     public List<List<Double>> get(List<List<Short>> board) throws TException;
 
-    public List<List<Double>> getWeight() throws TException;
+    public List<List<List<Double>>> getWeight() throws TException;
+
+    public List<List<Double>> getBiase() throws TException;
 
   }
 
@@ -60,6 +62,8 @@ public class LearningServer {
     public void get(List<List<Short>> board, AsyncMethodCallback resultHandler) throws TException;
 
     public void getWeight(AsyncMethodCallback resultHandler) throws TException;
+
+    public void getBiase(AsyncMethodCallback resultHandler) throws TException;
 
   }
 
@@ -167,7 +171,7 @@ public class LearningServer {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "get failed: unknown result");
     }
 
-    public List<List<Double>> getWeight() throws TException
+    public List<List<List<Double>>> getWeight() throws TException
     {
       send_getWeight();
       return recv_getWeight();
@@ -179,7 +183,7 @@ public class LearningServer {
       sendBase("getWeight", args);
     }
 
-    public List<List<Double>> recv_getWeight() throws TException
+    public List<List<List<Double>>> recv_getWeight() throws TException
     {
       getWeight_result result = new getWeight_result();
       receiveBase(result, "getWeight");
@@ -187,6 +191,28 @@ public class LearningServer {
         return result.success;
       }
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getWeight failed: unknown result");
+    }
+
+    public List<List<Double>> getBiase() throws TException
+    {
+      send_getBiase();
+      return recv_getBiase();
+    }
+
+    public void send_getBiase() throws TException
+    {
+      getBiase_args args = new getBiase_args();
+      sendBase("getBiase", args);
+    }
+
+    public List<List<Double>> recv_getBiase() throws TException
+    {
+      getBiase_result result = new getBiase_result();
+      receiveBase(result, "getBiase");
+      if (result.isSetSuccess()) {
+        return result.success;
+      }
+      throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getBiase failed: unknown result");
     }
 
   }
@@ -357,13 +383,42 @@ public class LearningServer {
         prot.writeMessageEnd();
       }
 
-      public List<List<Double>> getResult() throws TException {
+      public List<List<List<Double>>> getResult() throws TException {
         if (getState() != State.RESPONSE_READ) {
           throw new IllegalStateException("Method call not finished!");
         }
         org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
         org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
         return (new Client(prot)).recv_getWeight();
+      }
+    }
+
+    public void getBiase(AsyncMethodCallback resultHandler) throws TException {
+      checkReady();
+      getBiase_call method_call = new getBiase_call(resultHandler, this, ___protocolFactory, ___transport);
+      this.___currentMethod = method_call;
+      ___manager.call(method_call);
+    }
+
+    public static class getBiase_call extends org.apache.thrift.async.TAsyncMethodCall {
+      public getBiase_call(AsyncMethodCallback resultHandler, org.apache.thrift.async.TAsyncClient client, org.apache.thrift.protocol.TProtocolFactory protocolFactory, org.apache.thrift.transport.TNonblockingTransport transport) throws TException {
+        super(client, protocolFactory, transport, resultHandler, false);
+      }
+
+      public void write_args(org.apache.thrift.protocol.TProtocol prot) throws TException {
+        prot.writeMessageBegin(new org.apache.thrift.protocol.TMessage("getBiase", org.apache.thrift.protocol.TMessageType.CALL, 0));
+        getBiase_args args = new getBiase_args();
+        args.write(prot);
+        prot.writeMessageEnd();
+      }
+
+      public List<List<Double>> getResult() throws TException {
+        if (getState() != State.RESPONSE_READ) {
+          throw new IllegalStateException("Method call not finished!");
+        }
+        org.apache.thrift.transport.TMemoryInputTransport memoryTransport = new org.apache.thrift.transport.TMemoryInputTransport(getFrameBuffer().array());
+        org.apache.thrift.protocol.TProtocol prot = client.getProtocolFactory().getProtocol(memoryTransport);
+        return (new Client(prot)).recv_getBiase();
       }
     }
 
@@ -385,6 +440,7 @@ public class LearningServer {
       processMap.put("learning", new learning());
       processMap.put("get", new get());
       processMap.put("getWeight", new getWeight());
+      processMap.put("getBiase", new getBiase());
       return processMap;
     }
 
@@ -488,6 +544,26 @@ public class LearningServer {
       }
     }
 
+    public static class getBiase<I extends Iface> extends org.apache.thrift.ProcessFunction<I, getBiase_args> {
+      public getBiase() {
+        super("getBiase");
+      }
+
+      public getBiase_args getEmptyArgsInstance() {
+        return new getBiase_args();
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public getBiase_result getResult(I iface, getBiase_args args) throws TException {
+        getBiase_result result = new getBiase_result();
+        result.success = iface.getBiase();
+        return result;
+      }
+    }
+
   }
 
   public static class AsyncProcessor<I extends AsyncIface> extends org.apache.thrift.TBaseAsyncProcessor<I> {
@@ -506,6 +582,7 @@ public class LearningServer {
       processMap.put("learning", new learning());
       processMap.put("get", new get());
       processMap.put("getWeight", new getWeight());
+      processMap.put("getBiase", new getBiase());
       return processMap;
     }
 
@@ -710,7 +787,7 @@ public class LearningServer {
       }
     }
 
-    public static class getWeight<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getWeight_args, List<List<Double>>> {
+    public static class getWeight<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getWeight_args, List<List<List<Double>>>> {
       public getWeight() {
         super("getWeight");
       }
@@ -719,10 +796,10 @@ public class LearningServer {
         return new getWeight_args();
       }
 
-      public AsyncMethodCallback<List<List<Double>>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+      public AsyncMethodCallback<List<List<List<Double>>>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
         final org.apache.thrift.AsyncProcessFunction fcall = this;
-        return new AsyncMethodCallback<List<List<Double>>>() { 
-          public void onComplete(List<List<Double>> o) {
+        return new AsyncMethodCallback<List<List<List<Double>>>>() { 
+          public void onComplete(List<List<List<Double>>> o) {
             getWeight_result result = new getWeight_result();
             result.success = o;
             try {
@@ -756,8 +833,59 @@ public class LearningServer {
         return false;
       }
 
-      public void start(I iface, getWeight_args args, AsyncMethodCallback<List<List<Double>>> resultHandler) throws TException {
+      public void start(I iface, getWeight_args args, AsyncMethodCallback<List<List<List<Double>>>> resultHandler) throws TException {
         iface.getWeight(resultHandler);
+      }
+    }
+
+    public static class getBiase<I extends AsyncIface> extends org.apache.thrift.AsyncProcessFunction<I, getBiase_args, List<List<Double>>> {
+      public getBiase() {
+        super("getBiase");
+      }
+
+      public getBiase_args getEmptyArgsInstance() {
+        return new getBiase_args();
+      }
+
+      public AsyncMethodCallback<List<List<Double>>> getResultHandler(final AsyncFrameBuffer fb, final int seqid) {
+        final org.apache.thrift.AsyncProcessFunction fcall = this;
+        return new AsyncMethodCallback<List<List<Double>>>() { 
+          public void onComplete(List<List<Double>> o) {
+            getBiase_result result = new getBiase_result();
+            result.success = o;
+            try {
+              fcall.sendResponse(fb,result, org.apache.thrift.protocol.TMessageType.REPLY,seqid);
+              return;
+            } catch (Exception e) {
+              LOGGER.error("Exception writing to internal frame buffer", e);
+            }
+            fb.close();
+          }
+          public void onError(Exception e) {
+            byte msgType = org.apache.thrift.protocol.TMessageType.REPLY;
+            org.apache.thrift.TBase msg;
+            getBiase_result result = new getBiase_result();
+            {
+              msgType = org.apache.thrift.protocol.TMessageType.EXCEPTION;
+              msg = (org.apache.thrift.TBase)new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.INTERNAL_ERROR, e.getMessage());
+            }
+            try {
+              fcall.sendResponse(fb,msg,msgType,seqid);
+              return;
+            } catch (Exception ex) {
+              LOGGER.error("Exception writing to internal frame buffer", ex);
+            }
+            fb.close();
+          }
+        };
+      }
+
+      protected boolean isOneway() {
+        return false;
+      }
+
+      public void start(I iface, getBiase_args args, AsyncMethodCallback<List<List<Double>>> resultHandler) throws TException {
+        iface.getBiase(resultHandler);
       }
     }
 
@@ -4020,7 +4148,7 @@ public class LearningServer {
       schemes.put(TupleScheme.class, new getWeight_resultTupleSchemeFactory());
     }
 
-    public List<List<Double>> success; // required
+    public List<List<List<Double>>> success; // required
 
     /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
     public enum _Fields implements org.apache.thrift.TFieldIdEnum {
@@ -4087,7 +4215,8 @@ public class LearningServer {
       tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
           new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
               new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
-                  new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)))));
+                  new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+                      new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE))))));
       metaDataMap = Collections.unmodifiableMap(tmpMap);
       org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getWeight_result.class, metaDataMap);
     }
@@ -4096,7 +4225,7 @@ public class LearningServer {
     }
 
     public getWeight_result(
-      List<List<Double>> success)
+      List<List<List<Double>>> success)
     {
       this();
       this.success = success;
@@ -4107,9 +4236,13 @@ public class LearningServer {
      */
     public getWeight_result(getWeight_result other) {
       if (other.isSetSuccess()) {
-        List<List<Double>> __this__success = new ArrayList<List<Double>>(other.success.size());
-        for (List<Double> other_element : other.success) {
-          List<Double> __this__success_copy = new ArrayList<Double>(other_element);
+        List<List<List<Double>>> __this__success = new ArrayList<List<List<Double>>>(other.success.size());
+        for (List<List<Double>> other_element : other.success) {
+          List<List<Double>> __this__success_copy = new ArrayList<List<Double>>(other_element.size());
+          for (List<Double> other_element_element : other_element) {
+            List<Double> __this__success_copy_copy = new ArrayList<Double>(other_element_element);
+            __this__success_copy.add(__this__success_copy_copy);
+          }
           __this__success.add(__this__success_copy);
         }
         this.success = __this__success;
@@ -4129,22 +4262,22 @@ public class LearningServer {
       return (this.success == null) ? 0 : this.success.size();
     }
 
-    public java.util.Iterator<List<Double>> getSuccessIterator() {
+    public java.util.Iterator<List<List<Double>>> getSuccessIterator() {
       return (this.success == null) ? null : this.success.iterator();
     }
 
-    public void addToSuccess(List<Double> elem) {
+    public void addToSuccess(List<List<Double>> elem) {
       if (this.success == null) {
-        this.success = new ArrayList<List<Double>>();
+        this.success = new ArrayList<List<List<Double>>>();
       }
       this.success.add(elem);
     }
 
-    public List<List<Double>> getSuccess() {
+    public List<List<List<Double>>> getSuccess() {
       return this.success;
     }
 
-    public getWeight_result setSuccess(List<List<Double>> success) {
+    public getWeight_result setSuccess(List<List<List<Double>>> success) {
       this.success = success;
       return this;
     }
@@ -4170,7 +4303,7 @@ public class LearningServer {
         if (value == null) {
           unsetSuccess();
         } else {
-          setSuccess((List<List<Double>>)value);
+          setSuccess((List<List<List<Double>>>)value);
         }
         break;
 
@@ -4328,17 +4461,27 @@ public class LearningServer {
               if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
                 {
                   org.apache.thrift.protocol.TList _list64 = iprot.readListBegin();
-                  struct.success = new ArrayList<List<Double>>(_list64.size);
-                  List<Double> _elem65;
+                  struct.success = new ArrayList<List<List<Double>>>(_list64.size);
+                  List<List<Double>> _elem65;
                   for (int _i66 = 0; _i66 < _list64.size; ++_i66)
                   {
                     {
                       org.apache.thrift.protocol.TList _list67 = iprot.readListBegin();
-                      _elem65 = new ArrayList<Double>(_list67.size);
-                      double _elem68;
+                      _elem65 = new ArrayList<List<Double>>(_list67.size);
+                      List<Double> _elem68;
                       for (int _i69 = 0; _i69 < _list67.size; ++_i69)
                       {
-                        _elem68 = iprot.readDouble();
+                        {
+                          org.apache.thrift.protocol.TList _list70 = iprot.readListBegin();
+                          _elem68 = new ArrayList<Double>(_list70.size);
+                          double _elem71;
+                          for (int _i72 = 0; _i72 < _list70.size; ++_i72)
+                          {
+                            _elem71 = iprot.readDouble();
+                            _elem68.add(_elem71);
+                          }
+                          iprot.readListEnd();
+                        }
                         _elem65.add(_elem68);
                       }
                       iprot.readListEnd();
@@ -4371,13 +4514,20 @@ public class LearningServer {
           oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
           {
             oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.LIST, struct.success.size()));
-            for (List<Double> _iter70 : struct.success)
+            for (List<List<Double>> _iter73 : struct.success)
             {
               {
-                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, _iter70.size()));
-                for (double _iter71 : _iter70)
+                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.LIST, _iter73.size()));
+                for (List<Double> _iter74 : _iter73)
                 {
-                  oprot.writeDouble(_iter71);
+                  {
+                    oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, _iter74.size()));
+                    for (double _iter75 : _iter74)
+                    {
+                      oprot.writeDouble(_iter75);
+                    }
+                    oprot.writeListEnd();
+                  }
                 }
                 oprot.writeListEnd();
               }
@@ -4411,13 +4561,19 @@ public class LearningServer {
         if (struct.isSetSuccess()) {
           {
             oprot.writeI32(struct.success.size());
-            for (List<Double> _iter72 : struct.success)
+            for (List<List<Double>> _iter76 : struct.success)
             {
               {
-                oprot.writeI32(_iter72.size());
-                for (double _iter73 : _iter72)
+                oprot.writeI32(_iter76.size());
+                for (List<Double> _iter77 : _iter76)
                 {
-                  oprot.writeDouble(_iter73);
+                  {
+                    oprot.writeI32(_iter77.size());
+                    for (double _iter78 : _iter77)
+                    {
+                      oprot.writeDouble(_iter78);
+                    }
+                  }
                 }
               }
             }
@@ -4431,22 +4587,726 @@ public class LearningServer {
         BitSet incoming = iprot.readBitSet(1);
         if (incoming.get(0)) {
           {
-            org.apache.thrift.protocol.TList _list74 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.LIST, iprot.readI32());
-            struct.success = new ArrayList<List<Double>>(_list74.size);
-            List<Double> _elem75;
-            for (int _i76 = 0; _i76 < _list74.size; ++_i76)
+            org.apache.thrift.protocol.TList _list79 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+            struct.success = new ArrayList<List<List<Double>>>(_list79.size);
+            List<List<Double>> _elem80;
+            for (int _i81 = 0; _i81 < _list79.size; ++_i81)
             {
               {
-                org.apache.thrift.protocol.TList _list77 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, iprot.readI32());
-                _elem75 = new ArrayList<Double>(_list77.size);
-                double _elem78;
-                for (int _i79 = 0; _i79 < _list77.size; ++_i79)
+                org.apache.thrift.protocol.TList _list82 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+                _elem80 = new ArrayList<List<Double>>(_list82.size);
+                List<Double> _elem83;
+                for (int _i84 = 0; _i84 < _list82.size; ++_i84)
                 {
-                  _elem78 = iprot.readDouble();
-                  _elem75.add(_elem78);
+                  {
+                    org.apache.thrift.protocol.TList _list85 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, iprot.readI32());
+                    _elem83 = new ArrayList<Double>(_list85.size);
+                    double _elem86;
+                    for (int _i87 = 0; _i87 < _list85.size; ++_i87)
+                    {
+                      _elem86 = iprot.readDouble();
+                      _elem83.add(_elem86);
+                    }
+                  }
+                  _elem80.add(_elem83);
                 }
               }
-              struct.success.add(_elem75);
+              struct.success.add(_elem80);
+            }
+          }
+          struct.setSuccessIsSet(true);
+        }
+      }
+    }
+
+  }
+
+  public static class getBiase_args implements org.apache.thrift.TBase<getBiase_args, getBiase_args._Fields>, java.io.Serializable, Cloneable, Comparable<getBiase_args>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getBiase_args");
+
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new getBiase_argsStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getBiase_argsTupleSchemeFactory());
+    }
+
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+;
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getBiase_args.class, metaDataMap);
+    }
+
+    public getBiase_args() {
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getBiase_args(getBiase_args other) {
+    }
+
+    public getBiase_args deepCopy() {
+      return new getBiase_args(this);
+    }
+
+    @Override
+    public void clear() {
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getBiase_args)
+        return this.equals((getBiase_args)that);
+      return false;
+    }
+
+    public boolean equals(getBiase_args that) {
+      if (that == null)
+        return false;
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(getBiase_args other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+    }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getBiase_args(");
+      boolean first = true;
+
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class getBiase_argsStandardSchemeFactory implements SchemeFactory {
+      public getBiase_argsStandardScheme getScheme() {
+        return new getBiase_argsStandardScheme();
+      }
+    }
+
+    private static class getBiase_argsStandardScheme extends StandardScheme<getBiase_args> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getBiase_args struct) throws TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getBiase_args struct) throws TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class getBiase_argsTupleSchemeFactory implements SchemeFactory {
+      public getBiase_argsTupleScheme getScheme() {
+        return new getBiase_argsTupleScheme();
+      }
+    }
+
+    private static class getBiase_argsTupleScheme extends TupleScheme<getBiase_args> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, getBiase_args struct) throws TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, getBiase_args struct) throws TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+      }
+    }
+
+  }
+
+  public static class getBiase_result implements org.apache.thrift.TBase<getBiase_result, getBiase_result._Fields>, java.io.Serializable, Cloneable, Comparable<getBiase_result>   {
+    private static final org.apache.thrift.protocol.TStruct STRUCT_DESC = new org.apache.thrift.protocol.TStruct("getBiase_result");
+
+    private static final org.apache.thrift.protocol.TField SUCCESS_FIELD_DESC = new org.apache.thrift.protocol.TField("success", org.apache.thrift.protocol.TType.LIST, (short)0);
+
+    private static final Map<Class<? extends IScheme>, SchemeFactory> schemes = new HashMap<Class<? extends IScheme>, SchemeFactory>();
+    static {
+      schemes.put(StandardScheme.class, new getBiase_resultStandardSchemeFactory());
+      schemes.put(TupleScheme.class, new getBiase_resultTupleSchemeFactory());
+    }
+
+    public List<List<Double>> success; // required
+
+    /** The set of fields this struct contains, along with convenience methods for finding and manipulating them. */
+    public enum _Fields implements org.apache.thrift.TFieldIdEnum {
+      SUCCESS((short)0, "success");
+
+      private static final Map<String, _Fields> byName = new HashMap<String, _Fields>();
+
+      static {
+        for (_Fields field : EnumSet.allOf(_Fields.class)) {
+          byName.put(field.getFieldName(), field);
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, or null if its not found.
+       */
+      public static _Fields findByThriftId(int fieldId) {
+        switch(fieldId) {
+          case 0: // SUCCESS
+            return SUCCESS;
+          default:
+            return null;
+        }
+      }
+
+      /**
+       * Find the _Fields constant that matches fieldId, throwing an exception
+       * if it is not found.
+       */
+      public static _Fields findByThriftIdOrThrow(int fieldId) {
+        _Fields fields = findByThriftId(fieldId);
+        if (fields == null) throw new IllegalArgumentException("Field " + fieldId + " doesn't exist!");
+        return fields;
+      }
+
+      /**
+       * Find the _Fields constant that matches name, or null if its not found.
+       */
+      public static _Fields findByName(String name) {
+        return byName.get(name);
+      }
+
+      private final short _thriftId;
+      private final String _fieldName;
+
+      _Fields(short thriftId, String fieldName) {
+        _thriftId = thriftId;
+        _fieldName = fieldName;
+      }
+
+      public short getThriftFieldId() {
+        return _thriftId;
+      }
+
+      public String getFieldName() {
+        return _fieldName;
+      }
+    }
+
+    // isset id assignments
+    public static final Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> metaDataMap;
+    static {
+      Map<_Fields, org.apache.thrift.meta_data.FieldMetaData> tmpMap = new EnumMap<_Fields, org.apache.thrift.meta_data.FieldMetaData>(_Fields.class);
+      tmpMap.put(_Fields.SUCCESS, new org.apache.thrift.meta_data.FieldMetaData("success", org.apache.thrift.TFieldRequirementType.DEFAULT, 
+          new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+              new org.apache.thrift.meta_data.ListMetaData(org.apache.thrift.protocol.TType.LIST, 
+                  new org.apache.thrift.meta_data.FieldValueMetaData(org.apache.thrift.protocol.TType.DOUBLE)))));
+      metaDataMap = Collections.unmodifiableMap(tmpMap);
+      org.apache.thrift.meta_data.FieldMetaData.addStructMetaDataMap(getBiase_result.class, metaDataMap);
+    }
+
+    public getBiase_result() {
+    }
+
+    public getBiase_result(
+      List<List<Double>> success)
+    {
+      this();
+      this.success = success;
+    }
+
+    /**
+     * Performs a deep copy on <i>other</i>.
+     */
+    public getBiase_result(getBiase_result other) {
+      if (other.isSetSuccess()) {
+        List<List<Double>> __this__success = new ArrayList<List<Double>>(other.success.size());
+        for (List<Double> other_element : other.success) {
+          List<Double> __this__success_copy = new ArrayList<Double>(other_element);
+          __this__success.add(__this__success_copy);
+        }
+        this.success = __this__success;
+      }
+    }
+
+    public getBiase_result deepCopy() {
+      return new getBiase_result(this);
+    }
+
+    @Override
+    public void clear() {
+      this.success = null;
+    }
+
+    public int getSuccessSize() {
+      return (this.success == null) ? 0 : this.success.size();
+    }
+
+    public java.util.Iterator<List<Double>> getSuccessIterator() {
+      return (this.success == null) ? null : this.success.iterator();
+    }
+
+    public void addToSuccess(List<Double> elem) {
+      if (this.success == null) {
+        this.success = new ArrayList<List<Double>>();
+      }
+      this.success.add(elem);
+    }
+
+    public List<List<Double>> getSuccess() {
+      return this.success;
+    }
+
+    public getBiase_result setSuccess(List<List<Double>> success) {
+      this.success = success;
+      return this;
+    }
+
+    public void unsetSuccess() {
+      this.success = null;
+    }
+
+    /** Returns true if field success is set (has been assigned a value) and false otherwise */
+    public boolean isSetSuccess() {
+      return this.success != null;
+    }
+
+    public void setSuccessIsSet(boolean value) {
+      if (!value) {
+        this.success = null;
+      }
+    }
+
+    public void setFieldValue(_Fields field, Object value) {
+      switch (field) {
+      case SUCCESS:
+        if (value == null) {
+          unsetSuccess();
+        } else {
+          setSuccess((List<List<Double>>)value);
+        }
+        break;
+
+      }
+    }
+
+    public Object getFieldValue(_Fields field) {
+      switch (field) {
+      case SUCCESS:
+        return getSuccess();
+
+      }
+      throw new IllegalStateException();
+    }
+
+    /** Returns true if field corresponding to fieldID is set (has been assigned a value) and false otherwise */
+    public boolean isSet(_Fields field) {
+      if (field == null) {
+        throw new IllegalArgumentException();
+      }
+
+      switch (field) {
+      case SUCCESS:
+        return isSetSuccess();
+      }
+      throw new IllegalStateException();
+    }
+
+    @Override
+    public boolean equals(Object that) {
+      if (that == null)
+        return false;
+      if (that instanceof getBiase_result)
+        return this.equals((getBiase_result)that);
+      return false;
+    }
+
+    public boolean equals(getBiase_result that) {
+      if (that == null)
+        return false;
+
+      boolean this_present_success = true && this.isSetSuccess();
+      boolean that_present_success = true && that.isSetSuccess();
+      if (this_present_success || that_present_success) {
+        if (!(this_present_success && that_present_success))
+          return false;
+        if (!this.success.equals(that.success))
+          return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode() {
+      List<Object> list = new ArrayList<Object>();
+
+      boolean present_success = true && (isSetSuccess());
+      list.add(present_success);
+      if (present_success)
+        list.add(success);
+
+      return list.hashCode();
+    }
+
+    @Override
+    public int compareTo(getBiase_result other) {
+      if (!getClass().equals(other.getClass())) {
+        return getClass().getName().compareTo(other.getClass().getName());
+      }
+
+      int lastComparison = 0;
+
+      lastComparison = Boolean.valueOf(isSetSuccess()).compareTo(other.isSetSuccess());
+      if (lastComparison != 0) {
+        return lastComparison;
+      }
+      if (isSetSuccess()) {
+        lastComparison = org.apache.thrift.TBaseHelper.compareTo(this.success, other.success);
+        if (lastComparison != 0) {
+          return lastComparison;
+        }
+      }
+      return 0;
+    }
+
+    public _Fields fieldForId(int fieldId) {
+      return _Fields.findByThriftId(fieldId);
+    }
+
+    public void read(org.apache.thrift.protocol.TProtocol iprot) throws TException {
+      schemes.get(iprot.getScheme()).getScheme().read(iprot, this);
+    }
+
+    public void write(org.apache.thrift.protocol.TProtocol oprot) throws TException {
+      schemes.get(oprot.getScheme()).getScheme().write(oprot, this);
+      }
+
+    @Override
+    public String toString() {
+      StringBuilder sb = new StringBuilder("getBiase_result(");
+      boolean first = true;
+
+      sb.append("success:");
+      if (this.success == null) {
+        sb.append("null");
+      } else {
+        sb.append(this.success);
+      }
+      first = false;
+      sb.append(")");
+      return sb.toString();
+    }
+
+    public void validate() throws TException {
+      // check for required fields
+      // check for sub-struct validity
+    }
+
+    private void writeObject(java.io.ObjectOutputStream out) throws java.io.IOException {
+      try {
+        write(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(out)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private void readObject(java.io.ObjectInputStream in) throws java.io.IOException, ClassNotFoundException {
+      try {
+        read(new org.apache.thrift.protocol.TCompactProtocol(new org.apache.thrift.transport.TIOStreamTransport(in)));
+      } catch (TException te) {
+        throw new java.io.IOException(te);
+      }
+    }
+
+    private static class getBiase_resultStandardSchemeFactory implements SchemeFactory {
+      public getBiase_resultStandardScheme getScheme() {
+        return new getBiase_resultStandardScheme();
+      }
+    }
+
+    private static class getBiase_resultStandardScheme extends StandardScheme<getBiase_result> {
+
+      public void read(org.apache.thrift.protocol.TProtocol iprot, getBiase_result struct) throws TException {
+        org.apache.thrift.protocol.TField schemeField;
+        iprot.readStructBegin();
+        while (true)
+        {
+          schemeField = iprot.readFieldBegin();
+          if (schemeField.type == org.apache.thrift.protocol.TType.STOP) { 
+            break;
+          }
+          switch (schemeField.id) {
+            case 0: // SUCCESS
+              if (schemeField.type == org.apache.thrift.protocol.TType.LIST) {
+                {
+                  org.apache.thrift.protocol.TList _list88 = iprot.readListBegin();
+                  struct.success = new ArrayList<List<Double>>(_list88.size);
+                  List<Double> _elem89;
+                  for (int _i90 = 0; _i90 < _list88.size; ++_i90)
+                  {
+                    {
+                      org.apache.thrift.protocol.TList _list91 = iprot.readListBegin();
+                      _elem89 = new ArrayList<Double>(_list91.size);
+                      double _elem92;
+                      for (int _i93 = 0; _i93 < _list91.size; ++_i93)
+                      {
+                        _elem92 = iprot.readDouble();
+                        _elem89.add(_elem92);
+                      }
+                      iprot.readListEnd();
+                    }
+                    struct.success.add(_elem89);
+                  }
+                  iprot.readListEnd();
+                }
+                struct.setSuccessIsSet(true);
+              } else { 
+                org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+              }
+              break;
+            default:
+              org.apache.thrift.protocol.TProtocolUtil.skip(iprot, schemeField.type);
+          }
+          iprot.readFieldEnd();
+        }
+        iprot.readStructEnd();
+
+        // check for required fields of primitive type, which can't be checked in the validate method
+        struct.validate();
+      }
+
+      public void write(org.apache.thrift.protocol.TProtocol oprot, getBiase_result struct) throws TException {
+        struct.validate();
+
+        oprot.writeStructBegin(STRUCT_DESC);
+        if (struct.success != null) {
+          oprot.writeFieldBegin(SUCCESS_FIELD_DESC);
+          {
+            oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.LIST, struct.success.size()));
+            for (List<Double> _iter94 : struct.success)
+            {
+              {
+                oprot.writeListBegin(new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, _iter94.size()));
+                for (double _iter95 : _iter94)
+                {
+                  oprot.writeDouble(_iter95);
+                }
+                oprot.writeListEnd();
+              }
+            }
+            oprot.writeListEnd();
+          }
+          oprot.writeFieldEnd();
+        }
+        oprot.writeFieldStop();
+        oprot.writeStructEnd();
+      }
+
+    }
+
+    private static class getBiase_resultTupleSchemeFactory implements SchemeFactory {
+      public getBiase_resultTupleScheme getScheme() {
+        return new getBiase_resultTupleScheme();
+      }
+    }
+
+    private static class getBiase_resultTupleScheme extends TupleScheme<getBiase_result> {
+
+      @Override
+      public void write(org.apache.thrift.protocol.TProtocol prot, getBiase_result struct) throws TException {
+        TTupleProtocol oprot = (TTupleProtocol) prot;
+        BitSet optionals = new BitSet();
+        if (struct.isSetSuccess()) {
+          optionals.set(0);
+        }
+        oprot.writeBitSet(optionals, 1);
+        if (struct.isSetSuccess()) {
+          {
+            oprot.writeI32(struct.success.size());
+            for (List<Double> _iter96 : struct.success)
+            {
+              {
+                oprot.writeI32(_iter96.size());
+                for (double _iter97 : _iter96)
+                {
+                  oprot.writeDouble(_iter97);
+                }
+              }
+            }
+          }
+        }
+      }
+
+      @Override
+      public void read(org.apache.thrift.protocol.TProtocol prot, getBiase_result struct) throws TException {
+        TTupleProtocol iprot = (TTupleProtocol) prot;
+        BitSet incoming = iprot.readBitSet(1);
+        if (incoming.get(0)) {
+          {
+            org.apache.thrift.protocol.TList _list98 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.LIST, iprot.readI32());
+            struct.success = new ArrayList<List<Double>>(_list98.size);
+            List<Double> _elem99;
+            for (int _i100 = 0; _i100 < _list98.size; ++_i100)
+            {
+              {
+                org.apache.thrift.protocol.TList _list101 = new org.apache.thrift.protocol.TList(org.apache.thrift.protocol.TType.DOUBLE, iprot.readI32());
+                _elem99 = new ArrayList<Double>(_list101.size);
+                double _elem102;
+                for (int _i103 = 0; _i103 < _list101.size; ++_i103)
+                {
+                  _elem102 = iprot.readDouble();
+                  _elem99.add(_elem102);
+                }
+              }
+              struct.success.add(_elem99);
             }
           }
           struct.setSuccessIsSet(true);

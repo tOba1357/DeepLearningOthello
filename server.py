@@ -12,6 +12,9 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 
+
+weights_list = []
+biases_list = []
 def weight_variable(shape):
     """Create a weight variable with appropriate initialization."""
     initial = tf.truncated_normal(shape, stddev=0.1)
@@ -45,9 +48,11 @@ def nn_layer(input_tensor, input_dim, output_dim, layer_name, act=tf.nn.relu):
         # This Variable will hold the state of the weights for the layer
         with tf.name_scope('weights'):
             weights = weight_variable([input_dim, output_dim])
+            weights_list.append(weights)
             variable_summaries(weights, layer_name + '/weights')
         with tf.name_scope('biases'):
             biases = bias_variable([output_dim])
+            biases_list.append(biases)
             variable_summaries(biases, layer_name + '/biases')
         with tf.name_scope('Wx_plus_b'):
             preactivate = tf.matmul(input_tensor, weights) + biases
@@ -72,6 +77,7 @@ class CalculatorHandler:
         self.layer3 = nn_layer(self.layer2, self.board_size, self.board_size, 'layer3')
         self.y = nn_layer(self.layer3, self.board_size, self.out_put_size, 'layer4', act=tf.nn.softmax)
         # self.y = nn_layer(self.x, self.board_size, self.out_put_size, 'layer2', act=tf.nn.softmax)
+
         with tf.name_scope('cross_entropy'):
             diff = self.y_ * tf.log(self.y)
             with tf.name_scope('total'):
@@ -121,20 +127,27 @@ class CalculatorHandler:
         print "load from " + file_name
 
     def getWeight(self):
-        return [self.layer1, self.layer2, self.layer3]
+        rtn = []
+        for weights in weights_list:
+            rtn.append(self.session.run(weights))
+        return rtn
+
+    def getBiase(self):
+        rtn = []
+        for biases in biases_list:
+            rtn.append(self.session.run(biases))
+        return rtn
 
 
 
 handler = CalculatorHandler()
 processor = LearningServer.Processor(handler)
-print "port:"
-port_number = int(sys.stdin.readline().rstrip())
-transport = TSocket.TServerSocket(port=port_number)
+transport = TSocket.TServerSocket(port=9090)
 tfactory = TTransport.TBufferedTransportFactory()
 pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
 server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
 
-print 'Starting the server...'
+print 'Starting the server port 9090'
 server.serve()
 print 'done.'

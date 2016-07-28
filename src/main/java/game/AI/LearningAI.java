@@ -2,10 +2,9 @@ package game.AI;
 
 import game.Object.Board;
 import game.Object.Cell;
+import game.Object.NeuarlNetwork;
 import game.Object.Position;
 import game.Object.Turn;
-import launcher.LearningServer;
-import org.apache.thrift.TException;
 
 import java.util.Arrays;
 import java.util.List;
@@ -13,11 +12,14 @@ import java.util.stream.Collectors;
 
 public class LearningAI implements BaseAI {
     private final Turn myTurn;
-    private final LearningServer.Client client;
+    private final NeuarlNetwork neuarlNetwork;
 
-    public LearningAI(final Turn myTurn, final LearningServer.Client client) {
+    public LearningAI(
+            final Turn myTurn,
+            final NeuarlNetwork neuarlNetwork
+    ) {
         this.myTurn = myTurn;
-        this.client = client;
+        this.neuarlNetwork = neuarlNetwork;
     }
 
     @Override
@@ -27,27 +29,20 @@ public class LearningAI implements BaseAI {
 
     @Override
     public Position getPutPosition(final Board board) {
-        try {
-            final List<Board> nextBoardList = board.getNextBoardList(myTurn);
-            final List<Double> evaluationList = client.get(
-                    nextBoardList.stream()
-                            .map(Board::convertToOneRowArray)
-                            .map(Arrays::asList)
-                            .collect(Collectors.toList())
-            )
-                    .stream()
-                    .map(this::getEvaluationalValue)
-                    .collect(Collectors.toList());
-            final int index = evaluationList.indexOf(
-                    evaluationList.stream()
-                            .max((o1, o2) -> (int) ((o1 - o2) * 10000))
-                            .get()
-            );
-            return getPutPosition(board.getBoard(), nextBoardList.get(index).getBoard());
-        } catch (TException e) {
-            e.printStackTrace();
-        }
-        return null;
+        final List<Board> nextBoardList = board.getNextBoardList(myTurn);
+        final List<Double> evaluationList = nextBoardList.stream()
+                .map(Board::convertToOneRowDoubleArray)
+                .map(Arrays::asList)
+                .map(neuarlNetwork::calcu)
+                .map(this::getEvaluationalValue)
+                .collect(Collectors.toList());
+
+        final int index = evaluationList.indexOf(
+                evaluationList.stream()
+                        .max((o1, o2) -> (int) ((o1 - o2) * 10000))
+                        .get()
+        );
+        return getPutPosition(board.getBoard(), nextBoardList.get(index).getBoard());
     }
 
     private Position getPutPosition(final Cell[][] beforeBoard, final Cell[][] afterBoard) {

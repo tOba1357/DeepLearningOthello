@@ -1,18 +1,12 @@
 package game.Object;
 
-import com.google.gson.annotations.Expose;
-import org.apache.commons.lang3.builder.HashCodeBuilder;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Board {
-    @Expose
     public static final int BOARD_SIZE = 8;
 
-    @Expose
     private static final List<Direction> DIRECTIONS = Arrays.asList(
             new Direction(1, 1), new Direction(-1, -1),
             new Direction(1, -1), new Direction(-1, 1),
@@ -22,26 +16,16 @@ public class Board {
 
     private final Cell[][] board;
 
-    //cached puttable list
-    private boolean cached = false;
-    private List<Position> puttablePositionList;
-
     public Board() {
         this.board = new Cell[BOARD_SIZE + 2][BOARD_SIZE + 2];
-        this.puttablePositionList = new ArrayList<>();
     }
 
     private Board(final Cell[][] board) {
         this.board = board;
-        this.puttablePositionList = new ArrayList<>();
     }
 
     public boolean put(final Position position, final Turn turn) {
-        final boolean success = put(position, turn, true) > 0;
-        if (success) {
-            this.cached = false;
-        }
-        return success;
+        return put(position, turn, true) > 0;
     }
 
     private void reverseRow(
@@ -85,8 +69,6 @@ public class Board {
                 }
             }
         }
-        this.cached = true;
-        this.puttablePositionList = puttableList;
         return puttableList;
     }
 
@@ -195,6 +177,30 @@ public class Board {
         return oneRowBoard;
     }
 
+    public Double[] convertToOneRowDoubleArray() {
+        final Double[] oneRowBoard = new Double[BOARD_SIZE * BOARD_SIZE * 2];
+        for (int i = 1; i <= BOARD_SIZE; i++) {
+            for (int j = 1; j <= BOARD_SIZE; j++) {
+                final int index = (i - 1) * BOARD_SIZE + (j - 1);
+                switch (board[i][j]) {
+                    case BLACK:
+                        oneRowBoard[index] = 1d;
+                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 0d;
+                        break;
+                    case WHITE:
+                        oneRowBoard[index] = 0d;
+                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 1d;
+                        break;
+                    default:
+                        oneRowBoard[index] = 0d;
+                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 0d;
+                        break;
+                }
+            }
+        }
+        return oneRowBoard;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();
@@ -216,10 +222,6 @@ public class Board {
         return new Board(cloneBoard);
     }
 
-    @Override
-    public int hashCode() {
-        return HashCodeBuilder.reflectionHashCode(this);
-    }
 
     @Override
     public boolean equals(final Object obj) {

@@ -6,13 +6,9 @@ import game.Object.Cell;
 import game.Object.Position;
 import game.Object.Turn;
 import launcher.LearningServer;
-import org.apache.commons.lang3.tuple.Pair;
 import org.apache.thrift.TException;
-import utils.JsonHelper;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;

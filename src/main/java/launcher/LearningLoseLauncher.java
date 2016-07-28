@@ -3,6 +3,7 @@ package launcher;
 import game.AI.LearningAI;
 import game.AI.RandomAI;
 import game.GameForLearning;
+import game.Object.NeuarlNetwork;
 import game.Object.Turn;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.thrift.TException;
@@ -29,15 +30,19 @@ public class LearningLoseLauncher {
         final TProtocol protocol = new TBinaryProtocol(transport);
         final LearningServer.Client client = new LearningServer.Client(protocol);
 
-        final LearningAI blackAI1 = new LearningAI(Turn.BLACK, client);
-        final LearningAI whiteAI2 = new LearningAI(Turn.WHITE, client);
-
         final RandomAI whiteAI1 = new RandomAI(Turn.WHITE);
         final RandomAI blackAI2 = new RandomAI(Turn.BLACK);
 
         client.load(SAVE_FILE_NAME);
 
         for(int i = 0; ; i++) {
+            final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+                    client.getWeight(),
+                    client.getBiase()
+            );
+            final LearningAI blackAI1 = new LearningAI(Turn.BLACK, neuarlNetwork);
+            final LearningAI whiteAI2 = new LearningAI(Turn.WHITE, neuarlNetwork);
+
             final GameForLearning game = new GameForLearning(
                     blackAI1,
                     whiteAI1
@@ -82,6 +87,7 @@ public class LearningLoseLauncher {
             final Pair<List<List<Double>>, List<List<Short>>> data = game.getNode().convertToObjectForLearning();
             client.learning(data.getLeft(), data.getRight());
             client.save(SAVE_FILE_NAME);
+            client.load(SAVE_FILE_NAME);
             System.out.println();
         }
 //        transport1.close();

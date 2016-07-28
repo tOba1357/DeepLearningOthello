@@ -51,6 +51,9 @@ class Iface:
   def getWeight(self):
     pass
 
+  def getBiase(self):
+    pass
+
 
 class Client(Iface):
   def __init__(self, iprot, oprot=None):
@@ -205,6 +208,32 @@ class Client(Iface):
       return result.success
     raise TApplicationException(TApplicationException.MISSING_RESULT, "getWeight failed: unknown result")
 
+  def getBiase(self):
+    self.send_getBiase()
+    return self.recv_getBiase()
+
+  def send_getBiase(self):
+    self._oprot.writeMessageBegin('getBiase', TMessageType.CALL, self._seqid)
+    args = getBiase_args()
+    args.write(self._oprot)
+    self._oprot.writeMessageEnd()
+    self._oprot.trans.flush()
+
+  def recv_getBiase(self):
+    iprot = self._iprot
+    (fname, mtype, rseqid) = iprot.readMessageBegin()
+    if mtype == TMessageType.EXCEPTION:
+      x = TApplicationException()
+      x.read(iprot)
+      iprot.readMessageEnd()
+      raise x
+    result = getBiase_result()
+    result.read(iprot)
+    iprot.readMessageEnd()
+    if result.success is not None:
+      return result.success
+    raise TApplicationException(TApplicationException.MISSING_RESULT, "getBiase failed: unknown result")
+
 
 class Processor(Iface, TProcessor):
   def __init__(self, handler):
@@ -215,6 +244,7 @@ class Processor(Iface, TProcessor):
     self._processMap["learning"] = Processor.process_learning
     self._processMap["get"] = Processor.process_get
     self._processMap["getWeight"] = Processor.process_getWeight
+    self._processMap["getBiase"] = Processor.process_getBiase
 
   def process(self, iprot, oprot):
     (name, type, seqid) = iprot.readMessageBegin()
@@ -322,6 +352,25 @@ class Processor(Iface, TProcessor):
       logging.exception(ex)
       result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
     oprot.writeMessageBegin("getWeight", msg_type, seqid)
+    result.write(oprot)
+    oprot.writeMessageEnd()
+    oprot.trans.flush()
+
+  def process_getBiase(self, seqid, iprot, oprot):
+    args = getBiase_args()
+    args.read(iprot)
+    iprot.readMessageEnd()
+    result = getBiase_result()
+    try:
+      result.success = self._handler.getBiase()
+      msg_type = TMessageType.REPLY
+    except (TTransport.TTransportException, KeyboardInterrupt, SystemExit):
+      raise
+    except Exception as ex:
+      msg_type = TMessageType.EXCEPTION
+      logging.exception(ex)
+      result = TApplicationException(TApplicationException.INTERNAL_ERROR, 'Internal error')
+    oprot.writeMessageBegin("getBiase", msg_type, seqid)
     result.write(oprot)
     oprot.writeMessageEnd()
     oprot.trans.flush()
@@ -921,7 +970,7 @@ class getWeight_result:
   """
 
   thrift_spec = (
-    (0, TType.LIST, 'success', (TType.LIST,(TType.DOUBLE,None)), None, ), # 0
+    (0, TType.LIST, 'success', (TType.LIST,(TType.LIST,(TType.DOUBLE,None))), None, ), # 0
   )
 
   def __init__(self, success=None,):
@@ -944,7 +993,12 @@ class getWeight_result:
             _elem61 = []
             (_etype65, _size62) = iprot.readListBegin()
             for _i66 in xrange(_size62):
-              _elem67 = iprot.readDouble()
+              _elem67 = []
+              (_etype71, _size68) = iprot.readListBegin()
+              for _i72 in xrange(_size68):
+                _elem73 = iprot.readDouble()
+                _elem67.append(_elem73)
+              iprot.readListEnd()
               _elem61.append(_elem67)
             iprot.readListEnd()
             self.success.append(_elem61)
@@ -964,10 +1018,139 @@ class getWeight_result:
     if self.success is not None:
       oprot.writeFieldBegin('success', TType.LIST, 0)
       oprot.writeListBegin(TType.LIST, len(self.success))
-      for iter68 in self.success:
-        oprot.writeListBegin(TType.DOUBLE, len(iter68))
-        for iter69 in iter68:
-          oprot.writeDouble(iter69)
+      for iter74 in self.success:
+        oprot.writeListBegin(TType.LIST, len(iter74))
+        for iter75 in iter74:
+          oprot.writeListBegin(TType.DOUBLE, len(iter75))
+          for iter76 in iter75:
+            oprot.writeDouble(iter76)
+          oprot.writeListEnd()
+        oprot.writeListEnd()
+      oprot.writeListEnd()
+      oprot.writeFieldEnd()
+    oprot.writeFieldStop()
+    oprot.writeStructEnd()
+
+  def validate(self):
+    return
+
+
+  def __hash__(self):
+    value = 17
+    value = (value * 31) ^ hash(self.success)
+    return value
+
+  def __repr__(self):
+    L = ['%s=%r' % (key, value)
+      for key, value in self.__dict__.iteritems()]
+    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+  def __eq__(self, other):
+    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+  def __ne__(self, other):
+    return not (self == other)
+
+class getBiase_args:
+
+  thrift_spec = (
+  )
+
+  def read(self, iprot):
+    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
+      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
+      return
+    iprot.readStructBegin()
+    while True:
+      (fname, ftype, fid) = iprot.readFieldBegin()
+      if ftype == TType.STOP:
+        break
+      else:
+        iprot.skip(ftype)
+      iprot.readFieldEnd()
+    iprot.readStructEnd()
+
+  def write(self, oprot):
+    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
+      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
+      return
+    oprot.writeStructBegin('getBiase_args')
+    oprot.writeFieldStop()
+    oprot.writeStructEnd()
+
+  def validate(self):
+    return
+
+
+  def __hash__(self):
+    value = 17
+    return value
+
+  def __repr__(self):
+    L = ['%s=%r' % (key, value)
+      for key, value in self.__dict__.iteritems()]
+    return '%s(%s)' % (self.__class__.__name__, ', '.join(L))
+
+  def __eq__(self, other):
+    return isinstance(other, self.__class__) and self.__dict__ == other.__dict__
+
+  def __ne__(self, other):
+    return not (self == other)
+
+class getBiase_result:
+  """
+  Attributes:
+   - success
+  """
+
+  thrift_spec = (
+    (0, TType.LIST, 'success', (TType.LIST,(TType.DOUBLE,None)), None, ), # 0
+  )
+
+  def __init__(self, success=None,):
+    self.success = success
+
+  def read(self, iprot):
+    if iprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and isinstance(iprot.trans, TTransport.CReadableTransport) and self.thrift_spec is not None and fastbinary is not None:
+      fastbinary.decode_binary(self, iprot.trans, (self.__class__, self.thrift_spec))
+      return
+    iprot.readStructBegin()
+    while True:
+      (fname, ftype, fid) = iprot.readFieldBegin()
+      if ftype == TType.STOP:
+        break
+      if fid == 0:
+        if ftype == TType.LIST:
+          self.success = []
+          (_etype80, _size77) = iprot.readListBegin()
+          for _i81 in xrange(_size77):
+            _elem82 = []
+            (_etype86, _size83) = iprot.readListBegin()
+            for _i87 in xrange(_size83):
+              _elem88 = iprot.readDouble()
+              _elem82.append(_elem88)
+            iprot.readListEnd()
+            self.success.append(_elem82)
+          iprot.readListEnd()
+        else:
+          iprot.skip(ftype)
+      else:
+        iprot.skip(ftype)
+      iprot.readFieldEnd()
+    iprot.readStructEnd()
+
+  def write(self, oprot):
+    if oprot.__class__ == TBinaryProtocol.TBinaryProtocolAccelerated and self.thrift_spec is not None and fastbinary is not None:
+      oprot.trans.write(fastbinary.encode_binary(self, (self.__class__, self.thrift_spec)))
+      return
+    oprot.writeStructBegin('getBiase_result')
+    if self.success is not None:
+      oprot.writeFieldBegin('success', TType.LIST, 0)
+      oprot.writeListBegin(TType.LIST, len(self.success))
+      for iter89 in self.success:
+        oprot.writeListBegin(TType.DOUBLE, len(iter89))
+        for iter90 in iter89:
+          oprot.writeDouble(iter90)
         oprot.writeListEnd()
       oprot.writeListEnd()
       oprot.writeFieldEnd()

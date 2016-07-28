@@ -1,23 +1,19 @@
 package launcher;
 
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import game.AI.LearningAI;
 import game.AI.LearningEnemyAI;
 import game.Game;
+import game.Object.NeuarlNetwork;
 import game.Object.Turn;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import utils.FileName;
-import utils.JsonHelper;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -25,22 +21,26 @@ import java.util.stream.Collectors;
  */
 public class LearningLauncher {
     private static final String SAVE_FILE_NAME = FileName.SAVE_FILE.getFileName();
-    private static final List<Short> winResult = Arrays.asList((short)1, (short)0, (short)0);
-    private static final List<Short> loseResult = Arrays.asList((short)0, (short)0, (short)1);
-    private static final List<Short> drawResult = Arrays.asList((short)0, (short)1, (short)0);
+    private static final List<Short> winResult = Arrays.asList((short) 1, (short) 0, (short) 0);
+    private static final List<Short> loseResult = Arrays.asList((short) 0, (short) 0, (short) 1);
+    private static final List<Short> drawResult = Arrays.asList((short) 0, (short) 1, (short) 0);
 
     public static void main(String[] args) throws TException {
         final TSocket transport1 = new TSocket("localhost", 9090);
         transport1.open();
         final TProtocol protocol1 = new TBinaryProtocol(transport1);
         final LearningServer.Client client = new LearningServer.Client(protocol1);
-        final LearningAI blackAI = new LearningAI(Turn.BLACK, client);
+        final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+                client.getWeight(),
+                client.getBiase()
+        );
+        final LearningAI blackAI = new LearningAI(Turn.BLACK, neuarlNetwork);
         final LearningEnemyAI whiteAI = new LearningEnemyAI(Turn.WHITE, client);
 
         client.load(SAVE_FILE_NAME);
 
         int counter = 0;
-        while(true) {
+        while (true) {
             final List<List<Short>> resultList = new ArrayList<>();
             final List<List<Short>> boardList = new ArrayList<>();
             for (int i = 0; i < 100; i++) {

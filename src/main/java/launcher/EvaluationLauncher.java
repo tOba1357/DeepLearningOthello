@@ -3,6 +3,7 @@ package launcher;
 import game.AI.LearningAI;
 import game.AI.RandomAI;
 import game.Game;
+import game.Object.NeuarlNetwork;
 import game.Object.Turn;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -22,7 +23,12 @@ public class EvaluationLauncher {
         final TProtocol protocol = new TBinaryProtocol(transport);
         final LearningServer.Client client = new LearningServer.Client(protocol);
         client.load(SAVE_FILE_NAME);
-        final LearningAI blackAI = new LearningAI(Turn.BLACK, client);
+
+        final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+                client.getWeight(),
+                client.getBiase()
+        );
+        final LearningAI blackAI = new LearningAI(Turn.BLACK, neuarlNetwork);
 
         final RandomAI whiteAI = new RandomAI(Turn.WHITE);
 

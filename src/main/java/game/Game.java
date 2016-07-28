@@ -1,13 +1,10 @@
 package game;
 
 import game.AI.BaseAI;
-import game.AI.RandomAI;
 import game.Object.Board;
-import game.Object.Cell;
 import game.Object.Position;
 import game.Object.Turn;
 
-import java.beans.EventHandler;
 import java.util.ArrayList;
 import java.util.List;
 

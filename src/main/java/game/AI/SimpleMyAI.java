@@ -1,7 +1,6 @@
 package game.AI;
 
 import game.Object.Board;
-import game.Object.Cell;
 import game.Object.Position;
 import game.Object.Turn;
 import launcher.LearningServer;

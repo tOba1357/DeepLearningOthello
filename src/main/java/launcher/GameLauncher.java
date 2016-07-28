@@ -28,8 +28,10 @@ public class GameLauncher {
         final LearningServer.Client client = new LearningServer.Client(protocol);
         client.load(SAVE_FILE_NAME);
 //        final MyAI blackAI = new MyAI(Turn.BLACK, client, 5);
-        final LearningAI blackAI = new LearningAI(Turn.BLACK, client);
+//        final LearningAI blackAI = new LearningAI(Turn.BLACK, client);
 //        final SimpleMyAI blackAI = new SimpleMyAI(Turn.BLACK, client);
+        final MonteCarloAI blackAI = new MonteCarloAI(Turn.BLACK, 300);
+
 
 //        final LearningEnemyAI whiteAI = new LearningEnemyAI(Turn.WHITE, client);
 //        final MyAI whiteAI = new MyAI(Turn.WHITE, client, 5);
