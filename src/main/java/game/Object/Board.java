@@ -6,7 +6,6 @@ import java.util.List;
 
 public class Board {
     public static final int BOARD_SIZE = 8;
-
     private static final List<Direction> DIRECTIONS = Arrays.asList(
             new Direction(1, 1), new Direction(-1, -1),
             new Direction(1, -1), new Direction(-1, 1),
@@ -15,6 +14,8 @@ public class Board {
     );
 
     private final Cell[][] board;
+    private boolean cased = false;
+    private List<Board> nextBoardList;
 
     public Board() {
         this.board = new Cell[BOARD_SIZE + 2][BOARD_SIZE + 2];
@@ -25,7 +26,11 @@ public class Board {
     }
 
     public boolean put(final Position position, final Turn turn) {
-        return put(position, turn, true) > 0;
+        final boolean succeed = put(position, turn, true) > 0;
+        if (succeed) {
+            cased = false;
+        }
+        return succeed;
     }
 
     private void reverseRow(
@@ -73,6 +78,9 @@ public class Board {
     }
 
     public List<Board> getNextBoardList(final Turn turn) {
+        if (cased) {
+            return nextBoardList;
+        }
         final List<Board> nextBoardList = new ArrayList<>();
         Board cloneBoard = this.clone();
         for (int i = 1; i <= BOARD_SIZE; i++) {
@@ -83,6 +91,10 @@ public class Board {
                     cloneBoard = this.clone();
                 }
             }
+        }
+        if (nextBoardList.size() > 0) {
+            cased = true;
+            this.nextBoardList = nextBoardList;
         }
         return nextBoardList;
     }
@@ -153,23 +165,22 @@ public class Board {
         return board[position.getX()][position.getY()];
     }
 
-    public Short[] convertToOneRowArray() {
-        final Short[] oneRowBoard = new Short[BOARD_SIZE * BOARD_SIZE * 2];
+    public List<Short> convertToOneRowList() {
+        final List<Short> oneRowBoard = new ArrayList<>(BOARD_SIZE * BOARD_SIZE * 2);
         for (int i = 1; i <= BOARD_SIZE; i++) {
             for (int j = 1; j <= BOARD_SIZE; j++) {
-                final int index = (i - 1) * BOARD_SIZE + (j - 1);
                 switch (board[i][j]) {
                     case BLACK:
-                        oneRowBoard[index] = 1;
-                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 0;
+                        oneRowBoard.add((short) 1);
+                        oneRowBoard.add((short) 0);
                         break;
                     case WHITE:
-                        oneRowBoard[index] = 0;
-                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 1;
+                        oneRowBoard.add((short) 0);
+                        oneRowBoard.add((short) 1);
                         break;
                     default:
-                        oneRowBoard[index] = 0;
-                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 0;
+                        oneRowBoard.add((short) 0);
+                        oneRowBoard.add((short) 0);
                         break;
                 }
             }
@@ -177,23 +188,22 @@ public class Board {
         return oneRowBoard;
     }
 
-    public Double[] convertToOneRowDoubleArray() {
-        final Double[] oneRowBoard = new Double[BOARD_SIZE * BOARD_SIZE * 2];
+    public List<Double> convertToOneRowDoubleList() {
+        final List<Double> oneRowBoard = new ArrayList<>(BOARD_SIZE * BOARD_SIZE * 2);
         for (int i = 1; i <= BOARD_SIZE; i++) {
             for (int j = 1; j <= BOARD_SIZE; j++) {
-                final int index = (i - 1) * BOARD_SIZE + (j - 1);
                 switch (board[i][j]) {
                     case BLACK:
-                        oneRowBoard[index] = 1d;
-                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 0d;
+                        oneRowBoard.add(1d);
+                        oneRowBoard.add(0d);
                         break;
                     case WHITE:
-                        oneRowBoard[index] = 0d;
-                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 1d;
+                        oneRowBoard.add(0d);
+                        oneRowBoard.add(1d);
                         break;
                     default:
-                        oneRowBoard[index] = 0d;
-                        oneRowBoard[index + BOARD_SIZE * BOARD_SIZE] = 0d;
+                        oneRowBoard.add(0d);
+                        oneRowBoard.add(0d);
                         break;
                 }
             }

@@ -6,7 +6,6 @@ import game.Object.Turn;
 import launcher.LearningServer;
 import org.apache.thrift.TException;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -36,7 +35,7 @@ public class SimpleMyAI implements BaseAI {
             for (int i = 1; i <= Board.BOARD_SIZE; i++) {
                 for (int j = 1; j <= Board.BOARD_SIZE; j++) {
                     if (cloneBoard.put(new Position(i, j), myTurn)) {
-                        final List<Double> calcResult = client.get(Collections.singletonList(Arrays.asList(cloneBoard.convertToOneRowArray()))).get(0);
+                        final List<Double> calcResult = client.get(Collections.singletonList(cloneBoard.convertToOneRowList())).get(0);
                         final double evaluationValue = getEvaluationalValue(calcResult);
                         if (maxEvaluationValue < evaluationValue) {
                             putPosition = new Position(i, j);

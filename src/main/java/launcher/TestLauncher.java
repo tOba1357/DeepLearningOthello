@@ -7,7 +7,6 @@ import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,17 +19,17 @@ public class TestLauncher {
         transport1.open();
         final TProtocol protocol1 = new TBinaryProtocol(transport1);
         final LearningServer.Client client = new LearningServer.Client(protocol1);
-        client.load("data.ckpt");
+        client.load(args[2]);
         final Board board = new Board();
         board.setInitBoard();
         final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
                 client.getWeight(),
                 client.getBiase()
         );
-        final List<Double> result1 =  neuarlNetwork.calcu(Arrays.asList(board.convertToOneRowDoubleArray()));
+        final List<Double> result1 =  neuarlNetwork.calcu(board.convertToOneRowDoubleList());
         result1.forEach(a -> System.out.print(a + ","));
         System.out.println();
-        final List<Double> result2 =  client.get(Collections.singletonList(Arrays.asList(board.convertToOneRowArray()))).get(0);
+        final List<Double> result2 =  client.get(Collections.singletonList(board.convertToOneRowList())).get(0);
         result2.forEach(a -> System.out.print(a + ","));
         System.out.println();
 

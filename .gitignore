@@ -3,5 +3,5 @@ checkpoint
 gen-java/
 log/
 target
-data.ckpt
-data.ckpt.meta
+*.ckpt
+*.ckpt.meta

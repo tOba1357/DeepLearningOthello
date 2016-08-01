@@ -139,15 +139,20 @@ class CalculatorHandler:
         return rtn
 
 
+argvs = sys.argv
+if len(argvs) == 1:
+    print "set port numer"
+    quit()
 
 handler = CalculatorHandler()
 processor = LearningServer.Processor(handler)
-transport = TSocket.TServerSocket(port=9090)
+port = int(argvs[1])
+transport = TSocket.TServerSocket(port=port)
 tfactory = TTransport.TBufferedTransportFactory()
 pfactory = TBinaryProtocol.TBinaryProtocolFactory()
 
 server = TServer.TSimpleServer(processor, transport, tfactory, pfactory)
 
-print 'Starting the server port 9090'
+print 'Starting the server port' + str(port)
 server.serve()
 print 'done.'

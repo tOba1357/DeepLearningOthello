@@ -17,7 +17,11 @@ public class NeuarlNetwork {
     }
 
     public List<Double> calcu(final List<Double> in) {
-        return softmax(calcu(in, 0));
+        List<Double> now = in;
+        for (int i = 0; i < (layers.length - 1); i++) {
+            now = layers[i].calcu(now, false);
+        }
+        return softmax(layers[layers.length - 1].calcu(now, true));
     }
 
     private static List<Double> softmax(final List<Double> in) {
@@ -26,11 +30,6 @@ public class NeuarlNetwork {
         return expList.stream()
                 .map(a -> a / sum)
                 .collect(Collectors.toList());
-    }
-
-    private List<Double> calcu(final List<Double> in, final int layerIndex) {
-        if (layers.length == layerIndex) return in;
-        return calcu(layers[layerIndex].calcu(in, layerIndex == (layers.length - 1)), layerIndex + 1);
     }
 
     public static NeuarlNetwork create(

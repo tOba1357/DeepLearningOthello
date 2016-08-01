@@ -6,7 +6,6 @@ import game.Object.NeuarlNetwork;
 import game.Object.Position;
 import game.Object.Turn;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,8 +30,7 @@ public class LearningAI implements BaseAI {
     public Position getPutPosition(final Board board) {
         final List<Board> nextBoardList = board.getNextBoardList(myTurn);
         final List<Double> evaluationList = nextBoardList.stream()
-                .map(Board::convertToOneRowDoubleArray)
-                .map(Arrays::asList)
+                .map(Board::convertToOneRowDoubleList)
                 .map(neuarlNetwork::calcu)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
@@ -53,7 +51,7 @@ public class LearningAI implements BaseAI {
                 }
             }
         }
-        return null;
+        throw new IllegalArgumentException("not found put position");
     }
 
     private double getEvaluationalValue(final List<Double> values) {

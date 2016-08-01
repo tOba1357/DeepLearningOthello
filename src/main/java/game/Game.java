@@ -4,13 +4,14 @@ import game.AI.BaseAI;
 import game.Object.Board;
 import game.Object.Position;
 import game.Object.Turn;
+import game.Object.Winner;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
     private final Board board;
-    private final List<Board> historyBoards;
+    private final List<List<Short>> historyBoards;
     private final BaseAI blackAI;
     private final BaseAI whiteAI;
 
@@ -18,7 +19,7 @@ public class Game {
     private int sleepTime = 0;
 
     private Turn turn;
-    private Turn winner;
+    private Winner winner;
 
     public Game(
             final BaseAI blackAI,
@@ -33,14 +34,14 @@ public class Game {
         this.winner = null;
     }
 
-    public void start() {
+    public Winner start() {
         while (true) {
             if (isPrint) {
                 System.out.println(board);
             }
             if (turn == null) {
                 endGameTask();
-                return;
+                return winner;
             }
             if (isPrint) {
                 System.out.println("Turn:" + turn.toString());
@@ -48,10 +49,10 @@ public class Game {
             final Position putPosition = Turn.BLACK.equals(turn) ? blackAI.getPutPosition(board) : whiteAI.getPutPosition(board);
             if (!board.put(putPosition, turn)) {
                 System.out.println("not put error");
-                return;
+                return null;
             }
             setNextTurn();
-            historyBoards.add(board.clone());
+            historyBoards.add(board.convertToOneRowList());
             if (sleepTime > 0) {
                 try {
                     Thread.sleep(sleepTime);
@@ -63,10 +64,10 @@ public class Game {
     }
 
     private void setNextTurn() {
-        if (board.getPutableList(turn.getEnemyTurn()).size() > 0) {
+        if (board.getNextBoardList(turn.getEnemyTurn()).size() > 0) {
             this.turn = turn.getEnemyTurn();
         }
-        if (board.getPutableList(turn).size() > 0) {
+        if (board.getNextBoardList(turn).size() > 0) {
             return;
         }
         this.turn = null;
@@ -76,33 +77,26 @@ public class Game {
         final int blackCellNum = board.getBlackCellNum();
         final int whiteCellNum = board.getWhiteCellNum();
         if (blackCellNum > whiteCellNum) {
-            this.winner = Turn.BLACK;
+            this.winner = Winner.BLACK;
             if (isPrint) {
                 System.out.println("Winner:" + winner.toString());
             }
         } else if (blackCellNum < whiteCellNum) {
-            this.winner = Turn.WHITE;
+            this.winner = Winner.WHITE;
             if (isPrint) {
                 System.out.println("Winner:" + winner.toString());
             }
         } else {
-            this.winner = null;
+            this.winner = Winner.DRAW;
         }
     }
 
-    public List<Board> getHistoryBoards() {
+    public List<List<Short>> getHistoryBoards() {
         return historyBoards;
     }
 
-    public Turn getWinner() {
+    public Winner getWinner() {
         return winner;
-    }
-
-    public void clear() {
-        this.board.setInitBoard();
-        this.historyBoards.clear();
-        this.turn = Turn.BLACK;
-        this.winner = null;
     }
 
     public void setIsPrint(final boolean isPrint) {

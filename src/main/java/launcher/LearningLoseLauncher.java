@@ -87,7 +87,6 @@ public class LearningLoseLauncher {
             final Pair<List<List<Double>>, List<List<Short>>> data = game.getNode().convertToObjectForLearning();
             client.learning(data.getLeft(), data.getRight());
             client.save(SAVE_FILE_NAME);
-            client.load(SAVE_FILE_NAME);
             System.out.println();
         }
 //        transport1.close();

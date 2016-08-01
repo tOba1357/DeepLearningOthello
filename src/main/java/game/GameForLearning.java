@@ -59,10 +59,10 @@ public class GameForLearning {
     }
 
     private void setNextTurn() {
-        if (board.getPutableList(turn.getEnemyTurn()).size() > 0) {
+        if (board.getNextBoardList(turn.getEnemyTurn()).size() > 0) {
             this.turn = turn.getEnemyTurn();
         }
-        if (board.getPutableList(turn).size() > 0) {
+        if (board.getNextBoardList(turn).size() > 0) {
             return;
         }
         this.turn = null;

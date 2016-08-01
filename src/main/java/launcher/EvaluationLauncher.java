@@ -32,22 +32,23 @@ public class EvaluationLauncher {
 
         final RandomAI whiteAI = new RandomAI(Turn.WHITE);
 
-        final Game game = new Game(
-                blackAI,
-                whiteAI
-        );
-
         int winCounter = 0, loseCounter = 0, drawCounter = 0;
         for (int i = 0; i < 1000; i++) {
-            game.start();
-            if (game.getWinner() == Turn.BLACK) {
-                winCounter++;
-            } else if (game.getWinner() == Turn.WHITE) {
-                loseCounter++;
-            } else {
-                drawCounter++;
+            final Game game = new Game(
+                    blackAI,
+                    whiteAI
+            );
+            switch (game.start()) {
+                case BLACK:
+                    winCounter++;
+                    break;
+                case WHITE:
+                    loseCounter++;
+                    break;
+                case DRAW:
+                    drawCounter++;
+                    break;
             }
-            game.clear();
         }
         System.out.println("win/lose/draw");
         System.out.println(winCounter + "/" + loseCounter + "/" + drawCounter);

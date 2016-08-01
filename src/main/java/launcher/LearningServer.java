@@ -87,7 +87,7 @@ public class LearningServer {
       super(iprot, oprot);
     }
 
-    public void load(String file_name) throws TException
+    synchronized public void load(String file_name) throws TException
     {
       send_load(file_name);
       recv_load();
@@ -107,7 +107,7 @@ public class LearningServer {
       return;
     }
 
-    public void save(String file_name) throws TException
+    synchronized public void save(String file_name) throws TException
     {
       send_save(file_name);
       recv_save();
@@ -127,7 +127,7 @@ public class LearningServer {
       return;
     }
 
-    public void learning(List<List<Double>> result, List<List<Short>> board) throws TException
+    synchronized public void learning(List<List<Double>> result, List<List<Short>> board) throws TException
     {
       send_learning(result, board);
       recv_learning();
@@ -171,7 +171,7 @@ public class LearningServer {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "get failed: unknown result");
     }
 
-    public List<List<List<Double>>> getWeight() throws TException
+    synchronized public List<List<List<Double>>> getWeight() throws TException
     {
       send_getWeight();
       return recv_getWeight();
@@ -193,7 +193,7 @@ public class LearningServer {
       throw new org.apache.thrift.TApplicationException(org.apache.thrift.TApplicationException.MISSING_RESULT, "getWeight failed: unknown result");
     }
 
-    public List<List<Double>> getBiase() throws TException
+    synchronized public List<List<Double>> getBiase() throws TException
     {
       send_getBiase();
       return recv_getBiase();

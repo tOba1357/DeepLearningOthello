@@ -3,12 +3,10 @@ package game.AI;
 
 import game.Object.Board;
 import game.Object.Cell;
+import game.Object.NeuarlNetwork;
 import game.Object.Position;
 import game.Object.Turn;
-import launcher.LearningServer;
-import org.apache.thrift.TException;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -20,13 +18,16 @@ import java.util.stream.Collectors;
 public class LearningEnemyAI implements BaseAI {
     private final Random random;
     private final Turn myTurn;
-    private final LearningServer.Client client;
+    private final NeuarlNetwork neuarlNetwork;
     private final AtomicInteger counter;
 
-    public LearningEnemyAI(final Turn myTurn, final LearningServer.Client client) {
+    public LearningEnemyAI(
+            final Turn myTurn,
+            final NeuarlNetwork neuarlNetwork
+    ) {
         this.random = new Random(System.currentTimeMillis());
         this.myTurn = myTurn;
-        this.client = client;
+        this.neuarlNetwork = neuarlNetwork;
         this.counter = new AtomicInteger();
     }
 
@@ -37,37 +38,35 @@ public class LearningEnemyAI implements BaseAI {
 
     @Override
     public Position getPutPosition(final Board board) {
-        try {
-            final List<Board> nextBoardList = board.getNextBoardList(myTurn);
-            final List<Double> evaluationList = client.get(
-                    nextBoardList.stream()
-                            .map(Board::convertToOneRowArray)
-                            .map(Arrays::asList)
-                            .collect(Collectors.toList())
-            )
-                    .stream()
-                    .map(this::getEvaluationalValue)
-                    .collect(Collectors.toList());
-            final double evaluationSum = evaluationList.stream()
-                    .mapToDouble(Double::valueOf)
-                    .sum();
+        final List<Board> nextBoardList = board.getNextBoardList(myTurn);
 
-            //selected put position by evaluation
-            //selected rate = evaluation / sum
-            final double selectValue = random.nextDouble();
-            double tempSum = 0;
-            for (int i = 0; i < evaluationList.size(); i++) {
-                final double rate = evaluationList.get(i) / evaluationSum;
-                tempSum += rate;
-                if (tempSum >= selectValue) {
-                    counter.incrementAndGet();
-                    return getPutPosition(board.getBoard(), nextBoardList.get(i).getBoard());
-                }
+        final List<Double> evaluationList = nextBoardList.stream()
+                .map(Board::convertToOneRowDoubleList)
+                .map(neuarlNetwork::calcu)
+                .map(this::getEvaluationalValue)
+                .collect(Collectors.toList());
+
+        final double evaluationSum = evaluationList.stream()
+                .mapToDouble(a -> a)
+                .sum();
+
+        //selected put position by evaluation
+        //selected rate = evaluation / sum
+        final double selectValue = random.nextDouble();
+        double tempSum = 0;
+        for (int i = 0; i < evaluationList.size(); i++) {
+            final double rate = evaluationList.get(i) / evaluationSum;
+            tempSum += rate;
+            if (tempSum >= selectValue) {
+                return getPutPosition(board.getBoard(), nextBoardList.get(i).getBoard());
             }
-        } catch (TException e) {
-            e.printStackTrace();
         }
-        return null;
+        final StringBuilder builder = new StringBuilder();
+        builder.append("size:").append(evaluationList.size()).append(".\n");
+        builder.append("[");
+        evaluationList.forEach(evaluation -> builder.append(evaluation).append(","));
+        builder.append("]");
+        throw new IllegalArgumentException("not found put position\n" + builder.toString());
     }
 
     private Position getPutPosition(final Cell[][] beforeBoard, final Cell[][] afterBoard) {
@@ -78,16 +77,13 @@ public class LearningEnemyAI implements BaseAI {
                 }
             }
         }
-        return null;
+        throw new IllegalArgumentException("not found put position");
     }
 
     private double getEvaluationalValue(final List<Double> values) {
-        if (counter.get() <= 5) {
-            return random.nextDouble();
-        }
         if (myTurn == Turn.BLACK) {
-            return 1 - values.get(2);
+            return 1.2 - values.get(2);
         }
-        return 1 - values.get(0);
+        return 1.2 - values.get(0);
     }
 }

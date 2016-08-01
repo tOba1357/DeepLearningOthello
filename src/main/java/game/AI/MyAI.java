@@ -7,7 +7,6 @@ import game.Object.Turn;
 import launcher.LearningServer;
 import org.apache.thrift.TException;
 
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -42,7 +41,7 @@ public class MyAI implements BaseAI {
             System.out.println(alphabeta(board, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 0, myTurn));
             final Board cloneBoard = board.clone();
             cloneBoard.put(putPosition, myTurn);
-            for (Double aDouble : client.get(Collections.singletonList(Arrays.asList(cloneBoard.convertToOneRowArray()))).get(0)) {
+            for (Double aDouble : client.get(Collections.singletonList(cloneBoard.convertToOneRowList())).get(0)) {
                 System.out.print(aDouble + ",");
             }
             System.out.println();
@@ -71,7 +70,7 @@ public class MyAI implements BaseAI {
             return 0;
         }
         if (count == N) {
-            final List<Double> calcResult = client.get(Collections.singletonList(Arrays.asList(board.convertToOneRowArray()))).get(0);
+            final List<Double> calcResult = client.get(Collections.singletonList(board.convertToOneRowList())).get(0);
             return getEvaluationalValue(calcResult);
         }
         final List<Board> nextBoardList = board.getNextBoardList(turn);

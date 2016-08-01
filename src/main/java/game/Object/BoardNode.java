@@ -159,7 +159,7 @@ public class BoardNode {
         }
         if (node.getWin() + node.getLose() + node.getDraw() == 0) return;
         resultList.add(node.getRate());
-        boardList.add(Arrays.asList(board.convertToOneRowArray()));
+        boardList.add(board.convertToOneRowList());
         node.childList.forEach(child -> {
             convertToObjectForLearning(
                     node.getParent(),
