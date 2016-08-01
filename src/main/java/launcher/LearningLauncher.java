@@ -33,104 +33,52 @@ public class LearningLauncher {
         final LearningServer.Client client1 = new LearningServer.Client(protocol1);
 //        client1.load(FileName.SAVE_BLACK_FILE.getFileName());
 
-        final TSocket transport2 = new TSocket("localhost", 9091);
-        transport2.open();
-        final TProtocol protocol2 = new TBinaryProtocol(transport2);
-        final LearningServer.Client client2 = new LearningServer.Client(protocol2);
-//        client2.load(FileName.SAVE_WHITE_FILE.getFileName());
 
         for (int i = 0; ; i++) {
-            final NeuarlNetwork blackNeuarlNetwork = NeuarlNetwork.create(
+            final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
                     client1.getWeight(),
                     client1.getBiase()
             );
-            final NeuarlNetwork whiteNeuarlNetwork = NeuarlNetwork.create(
-                    client2.getWeight(),
-                    client2.getBiase()
-            );
-            final BaseAI blackAI1 = new LearningAI(Turn.BLACK, blackNeuarlNetwork);
-            final BaseAI whiteAI1 = new LearningEnemyAI(Turn.WHITE, whiteNeuarlNetwork);
-            final Thread blackThread = createThread(
-                    blackAI1,
-                    whiteAI1,
-                    100,
-                    client1
-            );
-            blackThread.run();
-
-            final BaseAI blackAI2 = new LearningEnemyAI(Turn.BLACK, blackNeuarlNetwork);
-            final BaseAI whiteAI2 = new LearningAI(Turn.WHITE, whiteNeuarlNetwork);
-            final Thread whiteThread = createThread(
-                    blackAI2,
-                    whiteAI2,
-                    100,
-                    client2
-            );
-            whiteThread.run();
-
-            try {
-                blackThread.join();
-                whiteThread.join();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            client1.save(FileName.SAVE_BLACK_FILE.getFileName());
-            client2.save(FileName.SAVE_WHITE_FILE.getFileName());
-        }
-
-    }
-
-    private static Thread createThread(
-            final BaseAI blackAI,
-            final BaseAI whiteAI,
-            final int gameCountNum,
-            final LearningServer.Client client
-    ) {
-        return new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final List<List<Short>> boardList = new ArrayList<>();
-                final List<List<Double>> resultList = new ArrayList<>();
-                IntStream.range(0, gameCountNum).parallel().forEach(i -> {
-                    final Game game = new Game(blackAI, whiteAI);
-                    final Winner winner = game.start();
-                    synchronized (this) {
-                        switch (winner) {
-                            case BLACK:
-                                addResultList(
-                                        resultList,
-                                        winResult,
-                                        game.getHistoryBoards().size()
-                                );
-                                break;
-                            case WHITE:
-                                addResultList(
-                                        resultList,
-                                        loseResult,
-                                        game.getHistoryBoards().size()
-                                );
-                                break;
-                            case DRAW:
-                                addResultList(
-                                        resultList,
-                                        drawResult,
-                                        game.getHistoryBoards().size()
-                                );
-                                break;
-                        }
-                        boardList.addAll(game.getHistoryBoards());
+            final BaseAI blackAI = new LearningAI(Turn.BLACK, neuarlNetwork);
+            final BaseAI whiteAI = new LearningEnemyAI(Turn.WHITE, neuarlNetwork);
+            final List<List<Short>> boardList = new ArrayList<>();
+            final List<List<Double>> resultList = new ArrayList<>();
+            IntStream.range(0, 100).parallel().forEach(j -> {
+                final Game game = new Game(blackAI, whiteAI);
+                final Winner winner = game.start();
+                synchronized (LearningLauncher.class) {
+                    switch (winner) {
+                        case BLACK:
+                            addResultList(
+                                    resultList,
+                                    winResult,
+                                    game.getHistoryBoards().size()
+                            );
+                            break;
+                        case WHITE:
+                            addResultList(
+                                    resultList,
+                                    loseResult,
+                                    game.getHistoryBoards().size()
+                            );
+                            break;
+                        case DRAW:
+                            addResultList(
+                                    resultList,
+                                    drawResult,
+                                    game.getHistoryBoards().size()
+                            );
+                            break;
                     }
-                });
-                try {
-                    client.learning(
-                            resultList,
-                            boardList
-                    );
-                } catch (TException e) {
-                    e.printStackTrace();
+                    boardList.addAll(game.getHistoryBoards());
                 }
-            }
-        });
+            });
+            client1.learning(
+                    resultList,
+                    boardList
+            );
+            client1.save(FileName.SAVE_FILE.getFileName());
+        }
     }
 
 
