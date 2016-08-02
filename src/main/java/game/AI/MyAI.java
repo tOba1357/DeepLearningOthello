@@ -2,9 +2,9 @@ package game.AI;
 
 import game.Object.Board;
 import game.Object.Cell;
+import game.Object.NeuarlNetwork;
 import game.Object.Position;
 import game.Object.Turn;
-import launcher.LearningServer;
 import org.apache.thrift.TException;
 
 import java.util.Collections;
@@ -15,18 +15,18 @@ import java.util.List;
  */
 public class MyAI implements BaseAI {
     private final Turn myTurn;
-    private final LearningServer.Client client;
+    private final NeuarlNetwork neuarlNetwork;
     private final Integer N;
     private Position putPosition;
 
 
     public MyAI(
             final Turn myTurn,
-            final LearningServer.Client client,
+            final NeuarlNetwork neuarlNetwork,
             final Integer N
     ) {
         this.myTurn = myTurn;
-        this.client = client;
+        this.neuarlNetwork = neuarlNetwork;
         this.N = N;
     }
 
@@ -38,13 +38,13 @@ public class MyAI implements BaseAI {
     @Override
     public Position getPutPosition(final Board board) {
         try {
-            System.out.println(alphabeta(board, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY, 0, myTurn));
-            final Board cloneBoard = board.clone();
-            cloneBoard.put(putPosition, myTurn);
-            for (Double aDouble : client.get(Collections.singletonList(cloneBoard.convertToOneRowList())).get(0)) {
-                System.out.print(aDouble + ",");
-            }
-            System.out.println();
+            System.out.println(alphabeta(
+                    board,
+                    Double.NEGATIVE_INFINITY,
+                    Double.POSITIVE_INFINITY,
+                    0,
+                    myTurn
+            ));
         } catch (TException e) {
             e.printStackTrace();
         }
@@ -70,19 +70,23 @@ public class MyAI implements BaseAI {
             return 0;
         }
         if (count == N) {
-            final List<Double> calcResult = client.get(Collections.singletonList(board.convertToOneRowList())).get(0);
-            return getEvaluationalValue(calcResult);
+            final List<Double> calcResult = neuarlNetwork.calcu(board.convertToOneRowDoubleList());
+            return getEvaluationalValue(calcResult, turn);
         }
-        final List<Board> nextBoardList = board.getNextBoardList(turn);
-        for (final Board nextBoard : nextBoardList) {
-            final double evaluation = alphabeta(nextBoard, a, b, count + 1, getNextTurn(board, turn));
+        final List<Board> childBoardList = board.getChildBoardList(turn);
+        for (int i = 0; i < childBoardList.size(); i++) {
+            final double evaluation = alphabeta(childBoardList.get(i), a, b, count + 1, getNextTurn(board, turn));
             if (turn == myTurn) {
                 if (evaluation >= a) {
+                    if (i != 0) {
+                        childBoardList.add(0, childBoardList.get(i));
+                        childBoardList.remove(i + 1);
+                    }
                     a = evaluation;
                     if (count == 0) {
                         this.putPosition = getPutPosition(
                                 board.getBoard(),
-                                nextBoard.getBoard()
+                                childBoardList.get(i).getBoard()
                         );
                     }
                 }
@@ -90,7 +94,13 @@ public class MyAI implements BaseAI {
                     return a;
                 }
             } else {
-                b = Math.min(b, evaluation);
+                if (evaluation < b) {
+                    b = evaluation;
+                    if (i != 0) {
+                        childBoardList.add(0, childBoardList.get(i));
+                        childBoardList.remove(i + 1);
+                    }
+                }
                 if (a >= b) {
                     return b;
                 }
@@ -101,10 +111,10 @@ public class MyAI implements BaseAI {
 
     private Turn getNextTurn(final Board board, final Turn turn) {
         final Turn enemyTurn = turn.getEnemyTurn();
-        if (!board.getPutableList(turn).isEmpty()) {
+        if (!board.getChildBoardList(enemyTurn).isEmpty()) {
             return enemyTurn;
         }
-        if (board.getPutableList(turn).isEmpty()) {
+        if (!board.getChildBoardList(turn).isEmpty()) {
             return turn;
         }
         return null;
@@ -121,10 +131,20 @@ public class MyAI implements BaseAI {
         return null;
     }
 
-    private double getEvaluationalValue(final List<Double> values) {
-        if (myTurn == Turn.WHITE) {
-            return values.get(2) - values.get(0);
+    private double getEvaluationalValue(
+            final List<Double> values,
+            final Turn turn
+    ) {
+        if (myTurn == Turn.BLACK) {
+            if (turn == Turn.BLACK) {
+                return 1 - values.get(0);
+            }
+            return values.get(2) - 1;
         }
-        return values.get(0) - values.get(2);
+        if (turn == Turn.BLACK) {
+            return values.get(0) - 1;
+        }
+        return 1 - values.get(2);
+
     }
 }

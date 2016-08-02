@@ -11,6 +11,8 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import utils.FileName;
 
+import java.util.stream.IntStream;
+
 /**
  * @author Tatsuya Oba
  */
@@ -32,26 +34,30 @@ public class EvaluationLauncher {
 
         final RandomAI whiteAI = new RandomAI(Turn.WHITE);
 
-        int winCounter = 0, loseCounter = 0, drawCounter = 0;
-        for (int i = 0; i < 1000; i++) {
+        final int[] winCounter = {0};
+        final int[] loseCounter = { 0 };
+        final int[] drawCounter = { 0 };
+        IntStream.range(0, 1000).parallel().forEach(i -> {
             final Game game = new Game(
                     blackAI,
                     whiteAI
             );
-            switch (game.start()) {
-                case BLACK:
-                    winCounter++;
-                    break;
-                case WHITE:
-                    loseCounter++;
-                    break;
-                case DRAW:
-                    drawCounter++;
-                    break;
+            synchronized (EvaluationLauncher.class) {
+                switch (game.start()) {
+                    case BLACK:
+                        winCounter[0]++;
+                        break;
+                    case WHITE:
+                        loseCounter[0]++;
+                        break;
+                    case DRAW:
+                        drawCounter[0]++;
+                        break;
+                }
             }
-        }
+        });
         System.out.println("win/lose/draw");
-        System.out.println(winCounter + "/" + loseCounter + "/" + drawCounter);
+        System.out.println(winCounter[0] + "/" + loseCounter[0] + "/" + drawCounter[0]);
         transport.close();
     }
 }

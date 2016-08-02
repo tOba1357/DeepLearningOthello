@@ -6,8 +6,8 @@ import game.AI.MonteCarloAI;
 import game.AI.MyAI;
 import game.AI.Player;
 import game.AI.RandomAI;
-import game.AI.SimpleMyAI;
 import game.Game;
+import game.Object.NeuarlNetwork;
 import game.Object.Turn;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -27,18 +27,20 @@ public class GameLauncher {
         final TProtocol protocol = new TBinaryProtocol(transport);
         final LearningServer.Client client = new LearningServer.Client(protocol);
         client.load(SAVE_FILE_NAME);
-//        final MyAI blackAI = new MyAI(Turn.BLACK, client, 5);
-//        final LearningAI blackAI = new LearningAI(Turn.BLACK, client);
-//        final SimpleMyAI blackAI = new SimpleMyAI(Turn.BLACK, client);
-        final MonteCarloAI blackAI = new MonteCarloAI(Turn.BLACK, 300);
+        final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+                client.getWeight(),
+                client.getBiase()
+        );
+        final MyAI blackAI = new MyAI(Turn.BLACK, neuarlNetwork, 6);
+//        final LearningAI blackAI = new LearningAI(Turn.BLACK, neuarlNetwork);
+//        final MonteCarloAI blackAI = new MonteCarloAI(Turn.BLACK, 300);
 
 
 //        final LearningEnemyAI whiteAI = new LearningEnemyAI(Turn.WHITE, client);
 //        final MyAI whiteAI = new MyAI(Turn.WHITE, client, 5);
 //        final Player whiteAI = new Player(Turn.WHITE);
-//        final LearningAI whiteAI = new LearningAI(Turn.WHITE, client);
-//        final SimpleMyAI whiteAI = new SimpleMyAI(Turn.WHITE, client);
-        final MonteCarloAI whiteAI = new MonteCarloAI(Turn.WHITE, 300);
+        final LearningAI whiteAI = new LearningAI(Turn.WHITE, neuarlNetwork);
+//        final MonteCarloAI whiteAI = new MonteCarloAI(Turn.WHITE, 300);
 
         final Game game = new Game(blackAI, whiteAI);
         game.setIsPrint(true);

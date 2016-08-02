@@ -10,7 +10,7 @@ import game.Object.Turn;
  * @author Tatsuya Oba
  */
 public class GameForLearning {
-    private final Board board;
+    private Board board;
     private BaseAI blackAI;
     private BaseAI whiteAI;
     private BoardNode node;
@@ -46,10 +46,7 @@ public class GameForLearning {
             }
             final Position putPosition =
                     Turn.BLACK.equals(turn) ? blackAI.getPutPosition(board) : whiteAI.getPutPosition(board);
-            if (!board.put(putPosition, turn)) {
-                System.out.println("not put error");
-                return;
-            }
+            board = board.put(putPosition, turn);
             final BoardNode childNode = node.getNodeFromBoard(board);
             if (childNode == null) {
                 node = node.addChild(board);
@@ -59,10 +56,10 @@ public class GameForLearning {
     }
 
     private void setNextTurn() {
-        if (board.getNextBoardList(turn.getEnemyTurn()).size() > 0) {
+        if (board.getChildBoardList(turn.getEnemyTurn()).size() > 0) {
             this.turn = turn.getEnemyTurn();
         }
-        if (board.getNextBoardList(turn).size() > 0) {
+        if (board.getChildBoardList(turn).size() > 0) {
             return;
         }
         this.turn = null;

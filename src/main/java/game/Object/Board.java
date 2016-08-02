@@ -3,6 +3,7 @@ package game.Object;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 public class Board {
     public static final int BOARD_SIZE = 8;
@@ -14,23 +15,87 @@ public class Board {
     );
 
     private final Cell[][] board;
-    private boolean cased = false;
-    private List<Board> nextBoardList;
+    private final List<Board> childBoardList;
+    private Board parent;
 
     public Board() {
         this.board = new Cell[BOARD_SIZE + 2][BOARD_SIZE + 2];
+        this.childBoardList = new ArrayList<>();
+        this.parent = null;
     }
 
     private Board(final Cell[][] board) {
         this.board = board;
+        this.childBoardList = new ArrayList<>();
+        this.parent = null;
     }
 
-    public boolean put(final Position position, final Turn turn) {
-        final boolean succeed = put(position, turn, true) > 0;
-        if (succeed) {
-            cased = false;
+    private Board(
+            final Cell[][] board,
+            final Board parent,
+            final List<Board> childBoardList
+    ) {
+        this.board = board;
+        this.parent = parent;
+        this.childBoardList = childBoardList;
+    }
+
+    public Board put(final Position position, final Turn turn) {
+        if (getCell(position) != Cell.BLANK) {
+            throw new IllegalArgumentException("not put");
         }
-        return succeed;
+        if (childBoardList.isEmpty()) {
+            setChildBoardList(turn);
+        }
+        final Optional<Board> nextBoard = childBoardList.stream()
+                .filter(child -> child.getCell(position) != Cell.BLANK)
+                .findAny();
+        if (!nextBoard.isPresent()) {
+            throw new IllegalArgumentException("not put");
+        }
+        return nextBoard.get();
+    }
+
+    public boolean isPut(final Position position, final Turn turn) {
+        return put(position, turn, false) > 0;
+    }
+
+    private int put(final Position position, final Turn turn, final boolean reverse) {
+        if (!Cell.BLANK.equals(getCell(position))) {
+            return 0;
+        }
+        final Cell cellOfTurn = Cell.getFromTurn(turn);
+        final int reverseNum = DIRECTIONS.stream().mapToInt(direction -> {
+            int reverseCounter = 0;
+            int x = position.getX();
+            int y = position.getY();
+            while (true) {
+                x += direction.getX();
+                y += direction.getY();
+                final Cell cell = board[x][y];
+                if (cell == cellOfTurn) {
+                    if (reverse && reverseCounter > 0) {
+                        reverseRow(
+                                position,
+                                cellOfTurn,
+                                reverseCounter,
+                                direction
+                        );
+                    }
+                    break;
+                }
+                if (cell == Cell.BLANK || cell == Cell.WALL) {
+                    reverseCounter = 0;
+                    break;
+                }
+                reverseCounter++;
+            }
+            return reverseCounter;
+        }).sum();
+        if (reverse && reverseNum > 0) {
+            board[position.getX()][position.getY()] = cellOfTurn;
+        }
+        return reverseNum;
     }
 
     private void reverseRow(
@@ -77,68 +142,29 @@ public class Board {
         return puttableList;
     }
 
-    public List<Board> getNextBoardList(final Turn turn) {
-        if (cased) {
-            return nextBoardList;
-        }
-        final List<Board> nextBoardList = new ArrayList<>();
-        Board cloneBoard = this.clone();
+    private void setChildBoardList(final Turn turn) {
+        Board cloneBoard = copyBoard();
         for (int i = 1; i <= BOARD_SIZE; i++) {
             for (int j = 1; j <= BOARD_SIZE; j++) {
                 final Position position = new Position(i, j);
-                if (cloneBoard.put(position, turn)) {
-                    nextBoardList.add(cloneBoard);
-                    cloneBoard = this.clone();
+                if (cloneBoard.put(position, turn, true) > 0) {
+                    cloneBoard.setParent(this);
+                    childBoardList.add(cloneBoard);
+                    cloneBoard = copyBoard();
                 }
             }
         }
-        if (nextBoardList.size() > 0) {
-            cased = true;
-            this.nextBoardList = nextBoardList;
-        }
-        return nextBoardList;
     }
 
-    public boolean isPut(final Position position, final Turn turn) {
-        return put(position, turn, false) > 0;
+    public List<Board> getChildBoardList(final Turn turn) {
+        if (childBoardList.isEmpty()) {
+            setChildBoardList(turn);
+        }
+        return childBoardList;
     }
 
-    private int put(final Position position, final Turn turn, final boolean reverse) {
-        if (!Cell.BLANK.equals(getCell(position))) {
-            return 0;
-        }
-        final Cell cellOfTurn = Cell.getFromTurn(turn);
-        final int reverseNum = DIRECTIONS.stream().mapToInt(direction -> {
-            int reverseCounter = 0;
-            int x = position.getX();
-            int y = position.getY();
-            while (true) {
-                x += direction.getX();
-                y += direction.getY();
-                final Cell cell = board[x][y];
-                if (cell == cellOfTurn) {
-                    if (reverse && reverseCounter > 0) {
-                        reverseRow(
-                                position,
-                                cellOfTurn,
-                                reverseCounter,
-                                direction
-                        );
-                    }
-                    break;
-                }
-                if (cell == Cell.BLANK || cell == Cell.WALL) {
-                    reverseCounter = 0;
-                    break;
-                }
-                reverseCounter++;
-            }
-            return reverseCounter;
-        }).sum();
-        if (reverse && reverseNum > 0) {
-            board[position.getX()][position.getY()] = cellOfTurn;
-        }
-        return reverseNum;
+    private void setParent(final Board parent) {
+        this.parent = parent;
     }
 
     public int getBlackCellNum() {
@@ -153,7 +179,7 @@ public class Board {
         int counter = 0;
         for (final Cell[] rows : board) {
             for (final Cell c : rows) {
-                if (cell.equals(c)) {
+                if (c == cell) {
                     counter++;
                 }
             }
@@ -163,6 +189,10 @@ public class Board {
 
     public Cell getCell(final Position position) {
         return board[position.getX()][position.getY()];
+    }
+
+    public Board getParent() {
+        return parent;
     }
 
     public List<Short> convertToOneRowList() {
@@ -223,13 +253,28 @@ public class Board {
         return builder.toString();
     }
 
+    public Board copyBoard() {
+        final Cell[][] cloneBoard = new Cell[BOARD_SIZE + 2][];
+        for (int i = 0; i < board.length; i++) {
+            cloneBoard[i] = board[i].clone();
+        }
+        return new Board(
+                cloneBoard
+        );
+    }
+
     @Override
     public Board clone() {
         final Cell[][] cloneBoard = new Cell[BOARD_SIZE + 2][];
         for (int i = 0; i < board.length; i++) {
             cloneBoard[i] = board[i].clone();
         }
-        return new Board(cloneBoard);
+
+        return new Board(
+                cloneBoard,
+                parent,
+                childBoardList
+        );
     }
 
 
@@ -244,8 +289,10 @@ public class Board {
     public static Board createBoardFromString(final String boardString) {
         final Board board = new Board();
         board.setInitBoard();
-        for (int i = 0; i < boardString.toCharArray().length; i++) {
-            char c = boardString.toCharArray()[i];
+        final String str = boardString.replace(" ", "")
+                .replace("\n", "");
+        for (int i = 0; i < str.toCharArray().length; i++) {
+            char c = str.toCharArray()[i];
             if ('o' == c) {
                 board.getBoard()[i / 8 + 1][i % 8 + 1] = Cell.BLACK;
             }

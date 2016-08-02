@@ -38,7 +38,7 @@ public class LearningEnemyAI implements BaseAI {
 
     @Override
     public Position getPutPosition(final Board board) {
-        final List<Board> nextBoardList = board.getNextBoardList(myTurn);
+        final List<Board> nextBoardList = board.getChildBoardList(myTurn);
 
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)

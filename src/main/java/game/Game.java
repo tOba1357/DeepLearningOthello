@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Game {
-    private final Board board;
+    private Board board;
     private final List<List<Short>> historyBoards;
     private final BaseAI blackAI;
     private final BaseAI whiteAI;
@@ -47,10 +47,7 @@ public class Game {
                 System.out.println("Turn:" + turn.toString());
             }
             final Position putPosition = Turn.BLACK.equals(turn) ? blackAI.getPutPosition(board) : whiteAI.getPutPosition(board);
-            if (!board.put(putPosition, turn)) {
-                System.out.println("not put error");
-                return null;
-            }
+            board = board.put(putPosition, turn);
             setNextTurn();
             historyBoards.add(board.convertToOneRowList());
             if (sleepTime > 0) {
@@ -64,10 +61,10 @@ public class Game {
     }
 
     private void setNextTurn() {
-        if (board.getNextBoardList(turn.getEnemyTurn()).size() > 0) {
+        if (board.getChildBoardList(turn.getEnemyTurn()).size() > 0) {
             this.turn = turn.getEnemyTurn();
         }
-        if (board.getNextBoardList(turn).size() > 0) {
+        if (board.getChildBoardList(turn).size() > 0) {
             return;
         }
         this.turn = null;
