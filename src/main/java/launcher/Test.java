@@ -34,7 +34,7 @@ public class Test {
         board.getChildBoardList(Turn.BLACK).forEach(board1 -> {
             final StringBuilder builder = new StringBuilder();
             builder.append("[");
-            neuarlNetwork.calcu(board1.convertToOneRowDoubleList())
+            neuarlNetwork.forward(board1.convertToOneRowDoubleList())
                     .forEach(evaluation -> builder.append(evaluation).append(","));
             builder.append("]");
             builder.append(board1.toString());

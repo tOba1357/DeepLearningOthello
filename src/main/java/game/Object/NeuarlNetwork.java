@@ -3,25 +3,27 @@ package game.Object;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
  * @author Tatsuya Oba
  */
 public class NeuarlNetwork {
-    private final Layer[] layers;
+    private final List<Layer> layerList;
 
 
-    private NeuarlNetwork(final Layer[] layers) {
-        this.layers = layers;
+    private NeuarlNetwork(final List<Layer> layerList) {
+        this.layerList = layerList;
     }
 
-    public List<Double> calcu(final List<Double> in) {
-        List<Double> now = in;
-        for (int i = 0; i < (layers.length - 1); i++) {
-            now = layers[i].calcu(now, false);
-        }
-        return softmax(layers[layers.length - 1].calcu(now, true));
+    public List<Double> forward(final List<Double> in) {
+        return layerList.stream()
+                .reduce(
+                        in,
+                        (input, layer) -> layer.forward(input),
+                        (input, output) -> output
+                );
     }
 
     private static List<Double> softmax(final List<Double> in) {
@@ -36,26 +38,38 @@ public class NeuarlNetwork {
             final List<List<List<Double>>> weights,
             final List<List<Double>> biases
     ) {
-        final Layer[] layers = new Layer[weights.size()];
-        for (int i = 0; i < weights.size(); i++) {
-            layers[i] = new Layer(weights.get(i), biases.get(i));
+        final List<Layer> layerList = new ArrayList<>();
+        for (int i = 0; i < weights.size() - 1; i++) {
+            layerList.add(new Layer(
+                    weights.get(i),
+                    biases.get(i),
+                    nums -> nums.stream().map(num -> Math.max(0, num)).collect(Collectors.toList())
+            ));
         }
-        return new NeuarlNetwork(layers);
+        layerList.add(new Layer(
+                weights.get(weights.size() - 1),
+                biases.get(weights.size() - 1),
+                NeuarlNetwork::softmax
+        ));
+        return new NeuarlNetwork(layerList);
     }
 
     private static class Layer {
         final List<List<Double>> weights;
         final List<Double> biases;
+        final Function<List<Double>, List<Double>> activationFunction;
 
         private Layer(
                 final List<List<Double>> weights,
-                final List<Double> biases
+                final List<Double> biases,
+                final Function<List<Double>, List<Double>> activationFunction
         ) {
             this.weights = weights;
             this.biases = biases;
+            this.activationFunction = activationFunction;
         }
 
-        private List<Double> calcu(final List<Double> in, final boolean last) {
+        private List<Double> forward(final List<Double> in) {
             final List<Double> result = new ArrayList<>();
             for (int i = 0; i < weights.get(0).size(); i++) {
                 double ans = 0;
@@ -63,12 +77,9 @@ public class NeuarlNetwork {
                     ans += weights.get(j).get(i) * in.get(j);
                 }
                 ans += biases.get(i);
-                if (!last)
-                    result.add(Math.max(ans, 0f));
-                else
-                    result.add(ans);
+                result.add(ans);
             }
-            return result;
+            return activationFunction.apply(result);
         }
     }
 }

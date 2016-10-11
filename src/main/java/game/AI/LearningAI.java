@@ -31,7 +31,7 @@ public class LearningAI implements BaseAI {
         final List<Board> nextBoardList = board.getChildBoardList(myTurn);
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)
-                .map(neuarlNetwork::calcu)
+                .map(neuarlNetwork::forward)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
 

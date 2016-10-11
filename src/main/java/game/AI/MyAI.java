@@ -7,7 +7,6 @@ import game.Object.Position;
 import game.Object.Turn;
 import org.apache.thrift.TException;
 
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -70,7 +69,7 @@ public class MyAI implements BaseAI {
             return 0;
         }
         if (count == N) {
-            final List<Double> calcResult = neuarlNetwork.calcu(board.convertToOneRowDoubleList());
+            final List<Double> calcResult = neuarlNetwork.forward(board.convertToOneRowDoubleList());
             return getEvaluationalValue(calcResult, turn);
         }
         final List<Board> childBoardList = board.getChildBoardList(turn);

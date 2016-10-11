@@ -42,7 +42,7 @@ public class LearningEnemyAI implements BaseAI {
 
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)
-                .map(neuarlNetwork::calcu)
+                .map(neuarlNetwork::forward)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
 
