@@ -15,18 +15,18 @@ public class Board {
     );
 
     private final Cell[][] board;
-    private final List<Board> childBoardList;
+    private List<Board> childBoardList;
     private Board parent;
 
     public Board() {
         this.board = new Cell[BOARD_SIZE + 2][BOARD_SIZE + 2];
-        this.childBoardList = new ArrayList<>();
+        this.childBoardList = null;
         this.parent = null;
     }
 
     private Board(final Cell[][] board) {
         this.board = board;
-        this.childBoardList = new ArrayList<>();
+        this.childBoardList = null;
         this.parent = null;
     }
 
@@ -44,7 +44,7 @@ public class Board {
         if (getCell(position) != Cell.BLANK) {
             throw new IllegalArgumentException("not put");
         }
-        if (childBoardList.isEmpty()) {
+        if (childBoardList == null) {
             setChildBoardList(turn);
         }
         final Optional<Board> nextBoard = childBoardList.stream()
@@ -143,6 +143,7 @@ public class Board {
     }
 
     private void setChildBoardList(final Turn turn) {
+        childBoardList = new ArrayList<>();
         Board cloneBoard = copyBoard();
         for (int i = 1; i <= BOARD_SIZE; i++) {
             for (int j = 1; j <= BOARD_SIZE; j++) {
@@ -157,7 +158,7 @@ public class Board {
     }
 
     public List<Board> getChildBoardList(final Turn turn) {
-        if (childBoardList.isEmpty()) {
+        if (childBoardList == null || childBoardList.isEmpty()) {
             setChildBoardList(turn);
         }
         return childBoardList;
@@ -193,6 +194,13 @@ public class Board {
 
     public Board getParent() {
         return parent;
+    }
+
+    public Board getRootBoard() {
+        if (parent == null) {
+            return this;
+        }
+        return parent.getRootBoard();
     }
 
     public List<Short> convertToOneRowList() {
@@ -304,5 +312,17 @@ public class Board {
             }
         }
         return board;
+    }
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        int counter = 1;
+        for (int i = 1; i <= BOARD_SIZE; i++) {
+            for (int j = 1; j <= BOARD_SIZE; j++) {
+                hash += Math.pow(3, counter) * board[i][j].toInt();
+            }
+        }
+        return hash;
     }
 }

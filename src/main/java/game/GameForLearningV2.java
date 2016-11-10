@@ -75,5 +75,16 @@ public class GameForLearningV2 {
     public List<List<Short>> getHistoryBoards() {
         return historyBoards;
     }
+
+    public void initial() {
+        board = board.getRootBoard();
+        turn = Turn.BLACK;
+        winner = null;
+        historyBoards.clear();
+    }
+
+    public Board getBoard() {
+        return board;
+    }
 }
 

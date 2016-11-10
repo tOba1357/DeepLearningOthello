@@ -9,3 +9,6 @@ enablePlugins(JavaAppPackaging)
 libraryDependencies += "org.apache.thrift" % "libthrift" % "0.9.3"
 libraryDependencies += "org.apache.commons" % "commons-lang3" % "3.4"
 
+
+javaOptions in run += "-Xmx4096m"
+javaOptions in run += "-Xmn4069m"

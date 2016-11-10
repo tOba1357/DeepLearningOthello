@@ -12,6 +12,8 @@ from thrift.transport import TTransport
 from thrift.protocol import TBinaryProtocol
 from thrift.server import TServer
 
+import random
+
 flags = tf.flags
 
 flags.DEFINE_string("summaries_dir", None, "summaries_dir")
@@ -20,17 +22,33 @@ flags.DEFINE_string("data_dir", "data", "save parameters directory name")
 FLAGS = flags.FLAGS
 
 
+def variable_summaries(var, name):
+    with tf.name_scope('summaries'):
+        mean = tf.reduce_mean(var)
+        tf.scalar_summary('mean/' + name, mean)
+        with tf.name_scope('stddev'):
+            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+        tf.scalar_summary('stddev/' + name, stddev)
+        tf.scalar_summary('max/' + name, tf.reduce_max(var))
+        tf.scalar_summary('min/' + name, tf.reduce_min(var))
+        tf.histogram_summary(name, var)
+
+
 def get_layer(input_tensor, input_dim, output_dim, layer_name, activating_function=tf.nn.relu):
     with tf.name_scope(layer_name):
-        weight = tf.get_variable('weight', [input_dim, output_dim], tf.float32)
-        bias = tf.get_variable('bias', [output_dim], tf.float32)
+        with tf.name_scope('weight'):
+            weight = tf.get_variable('weight', [input_dim, output_dim], tf.float32)
+            variable_summaries(weight, layer_name + "/weight")
+        with tf.name_scope('bias'):
+            bias = tf.get_variable('bias', [output_dim], tf.float32)
+            variable_summaries(bias, layer_name + "/bias")
         layer = activating_function(tf.matmul(input_tensor, weight) + bias)
         return layer, weight, bias
 
 
 class DefaultConfig(object):
     num_layers = 5
-    learning_rate = 0.5
+    learning_rate = 0.1
 
 
 class OthelloModel:
@@ -125,6 +143,25 @@ class CalculatorHandler:
 
     def getBiase(self):
         return self.session.run(self.model.biases)
+
+    def learningPhase2(self, result, board):
+        model = self.model
+        data_set = zip(board, result)
+        fetches = [model.train_optimizer, self.merged]
+        for step in range(100000):
+            batch = random.sample(data_set, 300)
+            input_data = []
+            targets = []
+            feed_dict = {model.input_data: input_data, model.targets: targets}
+            for data in batch:
+                input_data.append(data[0])
+                targets.append(data[1])
+            _, summary = self.session.run(fetches, feed_dict)
+            self.train_writer.add_summary(summary, step)
+
+
+    def initial(self):
+        self.session.run(tf.initialize_all_variables())
 
 
 if not FLAGS.summaries_dir:

@@ -31,19 +31,20 @@ public class GameLauncher {
                 client.getWeight(),
                 client.getBiase()
         );
-        final MyAI blackAI = new MyAI(Turn.BLACK, neuarlNetwork, 6);
-//        final LearningAI blackAI = new LearningAI(Turn.BLACK, neuarlNetwork);
+//        final MyAI blackAI = new MyAI(Turn.BLACK, neuarlNetwork, 3);
+        final LearningAI blackAI = new LearningAI(Turn.BLACK, neuarlNetwork);
 //        final MonteCarloAI blackAI = new MonteCarloAI(Turn.BLACK, 300);
 
 
 //        final LearningEnemyAI whiteAI = new LearningEnemyAI(Turn.WHITE, client);
-//        final MyAI whiteAI = new MyAI(Turn.WHITE, client, 5);
+//        final MyAI whiteAI = new MyAI(Turn.WHITE, neuarlNetwork, 3);
 //        final Player whiteAI = new Player(Turn.WHITE);
         final LearningAI whiteAI = new LearningAI(Turn.WHITE, neuarlNetwork);
 //        final MonteCarloAI whiteAI = new MonteCarloAI(Turn.WHITE, 300);
 
         final Game game = new Game(blackAI, whiteAI);
         game.setIsPrint(true);
+        game.setSleepTime(2000);
         game.start();
         transport.close();
     }

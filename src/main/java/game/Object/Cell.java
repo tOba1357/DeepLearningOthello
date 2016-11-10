@@ -17,6 +17,18 @@ public enum Cell {
         return string;
     }
 
+    public Integer toInt() {
+        switch (this) {
+            case BLACK:
+                return 1;
+            case BLANK:
+                return 0;
+            case WHITE:
+                return 2;
+        }
+        return null;
+    }
+
     public static Cell getFromTurn(final Turn turn) {
         switch (turn) {
             case BLACK:

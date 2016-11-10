@@ -64,7 +64,7 @@ public class BoardNode {
 
     /**
      * @param board
-     * @return child node add
+     * @return child node increment
      */
     public BoardNode addChild(final Board board) {
         final BoardNode node = new BoardNode(

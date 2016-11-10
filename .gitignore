@@ -6,3 +6,4 @@ target
 *.ckpt
 *.ckpt.meta
 *.iml
+project/project/

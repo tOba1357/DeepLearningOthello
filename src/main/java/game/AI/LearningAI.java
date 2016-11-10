@@ -6,6 +6,7 @@ import game.Object.NeuarlNetwork;
 import game.Object.Position;
 import game.Object.Turn;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -40,6 +41,9 @@ public class LearningAI implements BaseAI {
                         .max((o1, o2) -> (int) ((o1 - o2) * 10000))
                         .get()
         );
+        neuarlNetwork.forward(nextBoardList.get(index).convertToOneRowDoubleList())
+                .forEach(num -> System.out.print(num + "/"));
+        System.out.println();
         return getPutPosition(board.getBoard(), nextBoardList.get(index).getBoard());
     }
 

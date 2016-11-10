@@ -11,6 +11,7 @@ import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
 import utils.FileName;
 
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 /**
@@ -24,7 +25,7 @@ public class EvaluationLauncher {
         transport.open();
         final TProtocol protocol = new TBinaryProtocol(transport);
         final LearningServer.Client client = new LearningServer.Client(protocol);
-        client.load(SAVE_FILE_NAME);
+        client.load("phase2");
 
         final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
                 client.getWeight(),
@@ -34,30 +35,29 @@ public class EvaluationLauncher {
 
         final RandomAI whiteAI = new RandomAI(Turn.WHITE);
 
-        final int[] winCounter = {0};
-        final int[] loseCounter = { 0 };
-        final int[] drawCounter = { 0 };
+        final AtomicInteger winCounter = new AtomicInteger();
+        final AtomicInteger loseCounter = new AtomicInteger();
+        final AtomicInteger drawCounter = new AtomicInteger();
         IntStream.range(0, 1000).parallel().forEach(i -> {
             final Game game = new Game(
                     blackAI,
                     whiteAI
             );
-            synchronized (EvaluationLauncher.class) {
-                switch (game.start()) {
-                    case BLACK:
-                        winCounter[0]++;
-                        break;
-                    case WHITE:
-                        loseCounter[0]++;
-                        break;
-                    case DRAW:
-                        drawCounter[0]++;
-                        break;
-                }
+            switch (game.start()) {
+                case BLACK:
+                    winCounter.incrementAndGet();
+                    break;
+                case WHITE:
+                    loseCounter.incrementAndGet();
+                    break;
+                case DRAW:
+                    drawCounter.incrementAndGet();
+                    break;
             }
+
         });
         System.out.println("win/lose/draw");
-        System.out.println(winCounter[0] + "/" + loseCounter[0] + "/" + drawCounter[0]);
+        System.out.println(winCounter.get() + "/" + loseCounter.get() + "/" + drawCounter.get());
         transport.close();
     }
 }

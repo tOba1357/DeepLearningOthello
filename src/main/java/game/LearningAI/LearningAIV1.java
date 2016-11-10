@@ -7,6 +7,7 @@ import game.Object.Turn;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * @author Tatsuya Oba
@@ -20,20 +21,25 @@ public class LearningAIV1 implements BaseLearningAI {
             final Turn myTurn,
             final NeuarlNetwork neuarlNetwork
     ) {
-        this.random = new Random(System.currentTimeMillis());
+        this.random = new Random();
         this.myTurn = myTurn;
         this.neuarlNetwork = neuarlNetwork;
     }
 
     @Override
-    public Board getNextBoard(Board board) {
+    public Board getNextBoard(final Board board) {
         final List<Board> nextBoardList = board.getChildBoardList(myTurn);
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)
                 .map(neuarlNetwork::forward)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
-
+        if (random.nextInt(10) != 0) {
+            final int index = IntStream.range(0, evaluationList.size())
+                    .reduce((left, right) -> evaluationList.get(left) > evaluationList.get(right) ? left : right)
+                    .getAsInt();
+            return nextBoardList.get(index);
+        }
         final double evaluationSum = evaluationList.stream()
                 .mapToDouble(a -> a)
                 .sum();
