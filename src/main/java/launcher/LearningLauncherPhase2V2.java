@@ -4,7 +4,7 @@ import game.GameForLearningV2;
 import game.LearningAI.BaseLearningAI;
 import game.LearningAI.RandomAI;
 import game.LearningAI.TestAI;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 import game.Object.Winner;
 import org.apache.thrift.TException;
@@ -14,7 +14,6 @@ import org.apache.thrift.transport.TSocket;
 import utils.FileName;
 
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -75,12 +74,12 @@ public class LearningLauncherPhase2V2 {
         final TProtocol protocol = new TBinaryProtocol(transport);
         final LearningServer.Client client = new LearningServer.Client(protocol);
         client.load(FileName.SAVE_FILE.getFileName());
-        final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(client.getWeight(), client.getBiase());
+        final NeuralNetwork neuralNetwork = NeuralNetwork.create(client.getWeight(), client.getBiase());
 
         final List<List<Short>> boards = new ArrayList<>();
         final List<List<Double>> results = new ArrayList<>();
 
-        final BaseLearningAI blackAI1 = new TestAI(Turn.BLACK, neuarlNetwork);
+        final BaseLearningAI blackAI1 = new TestAI(Turn.BLACK, neuralNetwork);
         final BaseLearningAI whiteAI1 = new RandomAI(Turn.WHITE);
         IntStream.range(0, 10000).parallel().forEach(i -> {
             final GameForLearningV2 game = new GameForLearningV2(blackAI1, whiteAI1);
@@ -104,7 +103,7 @@ public class LearningLauncherPhase2V2 {
         });
         System.out.println("end black");
         final BaseLearningAI blackAI2 = new RandomAI(Turn.BLACK);
-        final BaseLearningAI whiteAI2 = new TestAI(Turn.WHITE, neuarlNetwork);
+        final BaseLearningAI whiteAI2 = new TestAI(Turn.WHITE, neuralNetwork);
         IntStream.range(0, 10000).parallel().forEach(i -> {
             final GameForLearningV2 game = new GameForLearningV2(blackAI2, whiteAI2);
             final Winner winner = game.start();

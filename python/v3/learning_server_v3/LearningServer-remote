@@ -27,6 +27,7 @@ if len(sys.argv) <= 1 or sys.argv[1] == '--help':
   print('  void train( data)')
   print('   getWeight()')
   print('   getBiase()')
+  print('  void save()')
   print('')
   sys.exit(0)
 
@@ -100,6 +101,12 @@ elif cmd == 'getBiase':
     print('getBiase requires 0 args')
     sys.exit(1)
   pp.pprint(client.getBiase())
+
+elif cmd == 'save':
+  if len(args) != 0:
+    print('save requires 0 args')
+    sys.exit(1)
+  pp.pprint(client.save())
 
 else:
   print('Unrecognized method %s' % cmd)

@@ -2,25 +2,28 @@ import tensorflow as tf
 
 
 class Config:
-    input_size = 20
-    label_size = 20
-    hidden_layer_size_list = [20, 30, 40]
+    input_size = 64 * 3 + 2  # board + turn
+    label_size = 64
+    hidden_layer_size_list = [200, 200, 200]
     keep_prob = 0.9
-    initial_learning_rate = 0.5
+    initial_learning_rate = 0.2
     decay_steps = 1000
     decay_rate = 0.97
     clip_norm = 4
 
 
 def dtype():
-    return tf.float16
+    return tf.float32
 
 
 def create_layer(layer_name, tensor, input_dim, output_dim, activation_function, keep_prob=None):
     with tf.name_scope(layer_name):
         weight = tf.get_variable("weight", [input_dim, output_dim], dtype())
         bias = tf.get_variable("bias", [output_dim], dtype())
-        layer = activation_function(tf.matmul(tensor, weight) + bias)
+        if activation_function is None:
+            layer = tf.matmul(tensor, weight) + bias
+        else:
+            layer = activation_function(tf.matmul(tensor, weight) + bias)
         if keep_prob is not None:
             layer = tf.nn.dropout(layer, keep_prob)
         return layer, weight, bias
@@ -47,23 +50,24 @@ class Model:
                 biases.append(bias)
                 logits_dim = layer_size
         with tf.variable_scope("layer-softmax"):
-            logits, weight, bias = create_layer("layer-softmax", logits, logits_dim, config.label_size, tf.nn.softmax)
+            logits, weight, bias = create_layer("layer-softmax", logits, logits_dim, config.label_size, tf.nn.tanh)
         weights.append(weight)
         biases.append(bias)
         self._logits = logits
         if is_train:
-            self._loss = loss = tf.nn.softmax_cross_entropy_with_logits(logits, labels)
+            self._loss = loss = tf.reduce_mean(tf.reduce_max(tf.square(labels - logits), 1))
             self._global_step = global_step = tf.Variable(0, trainable=False, name='global_step')
-            if config.decay_rate is None or config.decay_steps is None:
-                self._learning_rate = learning_rate = config.initial_learning_rate
-            else:
+            if config.decay_rate and config.decay_steps:
                 self._learning_rate = learning_rate = tf.train.exponential_decay(
                     config.initial_learning_rate, global_step, config.decay_steps,
                     config.decay_rate, staircase=True, name='learning_rate')
+            else:
+                self._learning_rate = learning_rate = config.initial_learning_rate
             params = tf.trainable_variables()
             train_opt = tf.train.AdamOptimizer(learning_rate)
             gradients = tf.gradients(loss, params)
             clipped_gradients, _ = tf.clip_by_global_norm(gradients, config.clip_norm)
+            self._gradients = clipped_gradients
             self._train_optimizer = train_opt.apply_gradients(zip(clipped_gradients, params), global_step)
             self._summaries = tf.merge_summary([
                 tf.scalar_summary('loss', loss),
@@ -109,3 +113,7 @@ class Model:
     @property
     def biases(self):
         return self._biases
+
+    @property
+    def gradients(self):
+        return self._gradients

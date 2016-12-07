@@ -4,7 +4,7 @@ import game.GameForLearningV2;
 import game.LearningAI.BaseLearningAI;
 import game.LearningAI.LearningAIV1;
 import game.Object.Board;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 import launcher.LearningServer;
 import org.apache.thrift.TException;
@@ -27,12 +27,12 @@ public class OverlapTest {
         final LearningServer.Client client = new LearningServer.Client(protocol);
         client.load(FileName.SAVE_FILE.getFileName());
 
-        final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+        final NeuralNetwork neuralNetwork = NeuralNetwork.create(
                 client.getWeight(),
                 client.getBiase()
         );
-        final BaseLearningAI blackAI = new LearningAIV1(Turn.BLACK, neuarlNetwork);
-        final BaseLearningAI whiteAI = new LearningAIV1(Turn.WHITE, neuarlNetwork);
+        final BaseLearningAI blackAI = new LearningAIV1(Turn.BLACK, neuralNetwork);
+        final BaseLearningAI whiteAI = new LearningAIV1(Turn.WHITE, neuralNetwork);
         final Map<Board, Integer> boardMap = new HashMap<>();
         for (int i = 0; i < 100; i++) {
             final GameForLearningV2 game = new GameForLearningV2(blackAI, whiteAI);

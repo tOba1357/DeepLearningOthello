@@ -1,7 +1,7 @@
 package game.LearningAI;
 
 import game.Object.Board;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 
 import java.util.List;
@@ -15,15 +15,15 @@ import java.util.stream.IntStream;
 public class LearningAIV1 implements BaseLearningAI {
     private final Random random;
     private final Turn myTurn;
-    private final NeuarlNetwork neuarlNetwork;
+    private final NeuralNetwork neuralNetwork;
 
     public LearningAIV1(
             final Turn myTurn,
-            final NeuarlNetwork neuarlNetwork
+            final NeuralNetwork neuralNetwork
     ) {
         this.random = new Random();
         this.myTurn = myTurn;
-        this.neuarlNetwork = neuarlNetwork;
+        this.neuralNetwork = neuralNetwork;
     }
 
     @Override
@@ -31,7 +31,7 @@ public class LearningAIV1 implements BaseLearningAI {
         final List<Board> nextBoardList = board.getChildBoardList(myTurn);
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)
-                .map(neuarlNetwork::forward)
+                .map(neuralNetwork::forward)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
         if (random.nextInt(10) != 0) {

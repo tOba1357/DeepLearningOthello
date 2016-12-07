@@ -1,7 +1,7 @@
 package launcher;
 
 import game.Object.Board;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
@@ -27,14 +27,14 @@ public class Test {
         transport.open();
         final TProtocol protocol = new TBinaryProtocol(transport);
         final LearningServer.Client client = new LearningServer.Client(protocol);
-        final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+        final NeuralNetwork neuralNetwork = NeuralNetwork.create(
                 client.getWeight(),
                 client.getBiase()
         );
         board.getChildBoardList(Turn.BLACK).forEach(board1 -> {
             final StringBuilder builder = new StringBuilder();
             builder.append("[");
-            neuarlNetwork.forward(board1.convertToOneRowDoubleList())
+            neuralNetwork.forward(board1.convertToOneRowDoubleList())
                     .forEach(evaluation -> builder.append(evaluation).append(","));
             builder.append("]");
             builder.append(board1.toString());

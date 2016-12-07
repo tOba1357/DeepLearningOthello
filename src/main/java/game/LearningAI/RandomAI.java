@@ -1,12 +1,10 @@
 package game.LearningAI;
 
 import game.Object.Board;
-import game.Object.NeuarlNetwork;
 import game.Object.Turn;
 
 import java.util.List;
 import java.util.Random;
-import java.util.stream.Collectors;
 
 /**
  * @author Tatsuya Oba

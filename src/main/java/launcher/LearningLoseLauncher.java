@@ -3,7 +3,7 @@ package launcher;
 import game.AI.LearningAI;
 import game.AI.RandomAI;
 import game.GameForLearning;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.thrift.TException;
@@ -36,12 +36,12 @@ public class LearningLoseLauncher {
         client.load(SAVE_FILE_NAME);
 
         for(int i = 0; ; i++) {
-            final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+            final NeuralNetwork neuralNetwork = NeuralNetwork.create(
                     client.getWeight(),
                     client.getBiase()
             );
-            final LearningAI blackAI1 = new LearningAI(Turn.BLACK, neuarlNetwork);
-            final LearningAI whiteAI2 = new LearningAI(Turn.WHITE, neuarlNetwork);
+            final LearningAI blackAI1 = new LearningAI(Turn.BLACK, neuralNetwork);
+            final LearningAI whiteAI2 = new LearningAI(Turn.WHITE, neuralNetwork);
 
             final GameForLearning game = new GameForLearning(
                     blackAI1,

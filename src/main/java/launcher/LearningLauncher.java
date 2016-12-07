@@ -4,7 +4,7 @@ import game.AI.BaseAI;
 import game.AI.LearningAI;
 import game.AI.LearningEnemyAI;
 import game.Game;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 import game.Object.Winner;
 import org.apache.thrift.TException;
@@ -42,13 +42,13 @@ public class LearningLauncher {
             boardList = new ArrayList<>();
             resultList = new ArrayList<>();
             counter.set(0);
-            final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+            final NeuralNetwork neuralNetwork = NeuralNetwork.create(
                     client.getWeight(),
                     client.getBiase()
             );
 
-            final BaseAI blackAI1 = new LearningAI(Turn.BLACK, neuarlNetwork);
-            final BaseAI whiteAI1 = new LearningEnemyAI(Turn.WHITE, neuarlNetwork);
+            final BaseAI blackAI1 = new LearningAI(Turn.BLACK, neuralNetwork);
+            final BaseAI whiteAI1 = new LearningEnemyAI(Turn.WHITE, neuralNetwork);
             final Thread thread1 = createThread(
                     blackAI1,
                     whiteAI1,
@@ -57,8 +57,8 @@ public class LearningLauncher {
             );
             thread1.run();
 
-            final BaseAI blackAI2 = new LearningEnemyAI(Turn.BLACK, neuarlNetwork);
-            final BaseAI whiteAI2 = new LearningAI(Turn.WHITE, neuarlNetwork);
+            final BaseAI blackAI2 = new LearningEnemyAI(Turn.BLACK, neuralNetwork);
+            final BaseAI whiteAI2 = new LearningAI(Turn.WHITE, neuralNetwork);
             final Thread thread2 = createThread(
                     blackAI2,
                     whiteAI2,

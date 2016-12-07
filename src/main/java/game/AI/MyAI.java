@@ -1,10 +1,7 @@
 package game.AI;
 
-import game.Object.Board;
-import game.Object.Cell;
-import game.Object.NeuarlNetwork;
-import game.Object.Position;
-import game.Object.Turn;
+import game.Object.*;
+import game.Object.NeuralNetwork;
 import org.apache.thrift.TException;
 
 import java.util.List;
@@ -14,18 +11,18 @@ import java.util.List;
  */
 public class MyAI implements BaseAI {
     private final Turn myTurn;
-    private final NeuarlNetwork neuarlNetwork;
+    private final NeuralNetwork neuralNetwork;
     private final Integer N;
     private Position putPosition;
 
 
     public MyAI(
             final Turn myTurn,
-            final NeuarlNetwork neuarlNetwork,
+            final NeuralNetwork neuralNetwork,
             final Integer N
     ) {
         this.myTurn = myTurn;
-        this.neuarlNetwork = neuarlNetwork;
+        this.neuralNetwork = neuralNetwork;
         this.N = N;
     }
 
@@ -69,7 +66,7 @@ public class MyAI implements BaseAI {
             return 0;
         }
         if (count == N) {
-            final List<Double> calcResult = neuarlNetwork.forward(board.convertToOneRowDoubleList());
+            final List<Double> calcResult = neuralNetwork.forward(board.convertToOneRowDoubleList());
             return getEvaluationalValue(calcResult, turn);
         }
         final List<Board> childBoardList = board.getChildBoardList(turn);

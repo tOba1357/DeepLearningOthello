@@ -1,11 +1,8 @@
 package game.AI;
 
 
-import game.Object.Board;
-import game.Object.Cell;
-import game.Object.NeuarlNetwork;
-import game.Object.Position;
-import game.Object.Turn;
+import game.Object.*;
+import game.Object.NeuralNetwork;
 
 import java.util.List;
 import java.util.Random;
@@ -18,16 +15,16 @@ import java.util.stream.Collectors;
 public class LearningEnemyAI implements BaseAI {
     private final Random random;
     private final Turn myTurn;
-    private final NeuarlNetwork neuarlNetwork;
+    private final NeuralNetwork neuralNetwork;
     private final AtomicInteger counter;
 
     public LearningEnemyAI(
             final Turn myTurn,
-            final NeuarlNetwork neuarlNetwork
+            final NeuralNetwork neuralNetwork
     ) {
         this.random = new Random(System.currentTimeMillis());
         this.myTurn = myTurn;
-        this.neuarlNetwork = neuarlNetwork;
+        this.neuralNetwork = neuralNetwork;
         this.counter = new AtomicInteger();
     }
 
@@ -42,7 +39,7 @@ public class LearningEnemyAI implements BaseAI {
 
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)
-                .map(neuarlNetwork::forward)
+                .map(neuralNetwork::forward)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
 

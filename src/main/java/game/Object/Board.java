@@ -249,6 +249,32 @@ public class Board {
         return oneRowBoard;
     }
 
+    public List<Double> convertToOneRowDoubleListDim3() {
+        final List<Double> oneRowBoard = new ArrayList<>(BOARD_SIZE * BOARD_SIZE * 2);
+        for (int i = 1; i <= BOARD_SIZE; i++) {
+            for (int j = 1; j <= BOARD_SIZE; j++) {
+                switch (board[i][j]) {
+                    case BLACK:
+                        oneRowBoard.add(1d);
+                        oneRowBoard.add(0d);
+                        oneRowBoard.add(0d);
+                        break;
+                    case WHITE:
+                        oneRowBoard.add(0d);
+                        oneRowBoard.add(1d);
+                        oneRowBoard.add(0d);
+                        break;
+                    default:
+                        oneRowBoard.add(0d);
+                        oneRowBoard.add(0d);
+                        oneRowBoard.add(1d);
+                        break;
+                }
+            }
+        }
+        return oneRowBoard;
+    }
+
     @Override
     public String toString() {
         final StringBuilder builder = new StringBuilder();

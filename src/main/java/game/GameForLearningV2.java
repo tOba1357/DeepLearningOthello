@@ -12,14 +12,14 @@ import java.util.List;
  * @author Tatsuya Oba
  */
 public class GameForLearningV2 {
-    private Board board;
-    private final BaseLearningAI blackAI;
-    private final BaseLearningAI whiteAI;
+    protected Board board;
+    protected final BaseLearningAI blackAI;
+    protected final BaseLearningAI whiteAI;
 
-    private Turn turn;
-    private Winner winner;
+    protected Turn turn;
+    protected Winner winner;
 
-    private final List<List<Short>> historyBoards;
+    protected final List<List<Short>> historyBoards;
 
     public GameForLearningV2(
             final BaseLearningAI blackAI,
@@ -46,7 +46,7 @@ public class GameForLearningV2 {
         }
     }
 
-    private void setNextTurn() {
+    protected void setNextTurn() {
         if (board.getChildBoardList(turn.getEnemyTurn()).size() > 0) {
             this.turn = turn.getEnemyTurn();
         }
@@ -56,7 +56,7 @@ public class GameForLearningV2 {
         this.turn = null;
     }
 
-    private void setWinner() {
+    protected void setWinner() {
         final int blackCellNum = board.getBlackCellNum();
         final int whiteCellNum = board.getWhiteCellNum();
         if (blackCellNum > whiteCellNum) {

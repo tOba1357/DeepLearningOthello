@@ -1,14 +1,11 @@
 package launcher;
 
 import game.Object.Board;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import org.apache.thrift.TException;
 import org.apache.thrift.protocol.TBinaryProtocol;
 import org.apache.thrift.protocol.TProtocol;
 import org.apache.thrift.transport.TSocket;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * @author Tatsuya Oba
@@ -21,11 +18,11 @@ public class TestLauncher {
         final LearningServer.Client client = new LearningServer.Client(protocol1);
         final Board board = new Board();
         board.setInitBoard();
-        final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+        final NeuralNetwork neuralNetwork = NeuralNetwork.create(
                 client.getWeight(),
                 client.getBiase()
         );
-        neuarlNetwork.forward(board.convertToOneRowDoubleList()).forEach(System.out::println);
+        neuralNetwork.forward(board.convertToOneRowDoubleList()).forEach(System.out::println);
         transport1.close();
     }
 }

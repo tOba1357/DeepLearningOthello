@@ -5,7 +5,7 @@ import game.LearningAI.BaseLearningAI;
 import game.LearningAI.LearningAIV1;
 import game.LearningAI.RandomAI;
 import game.LearningAI.TestAI;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 import game.Object.Winner;
 import org.apache.commons.lang3.tuple.Pair;
@@ -38,18 +38,18 @@ public class LearningLauncherV2 {
         Pair<List<List<Short>>, List<List<Double>>> boardsAndResults1 = Pair.of(Collections.EMPTY_LIST, Collections.EMPTY_LIST);
         Pair<List<List<Short>>, List<List<Double>>> boardsAndResults2 = Pair.of(Collections.EMPTY_LIST, Collections.EMPTY_LIST);
         for (int i = 0; ; i++) {
-            final NeuarlNetwork neuarlNetwork = NeuarlNetwork.create(
+            final NeuralNetwork neuralNetwork = NeuralNetwork.create(
                     client.getWeight(),
                     client.getBiase()
             );
 
             if (i % 10 == 0) {
-                boardsAndResults1 = evaluation(neuarlNetwork, 100, Turn.BLACK);
-                boardsAndResults2 = evaluation(neuarlNetwork, 100, Turn.WHITE);
+                boardsAndResults1 = evaluation(neuralNetwork, 100, Turn.BLACK);
+                boardsAndResults2 = evaluation(neuralNetwork, 100, Turn.WHITE);
             }
 
-            final BaseLearningAI blackAI = new LearningAIV1(Turn.BLACK, neuarlNetwork);
-            final BaseLearningAI whiteAI = new LearningAIV1(Turn.WHITE, neuarlNetwork);
+            final BaseLearningAI blackAI = new LearningAIV1(Turn.BLACK, neuralNetwork);
+            final BaseLearningAI whiteAI = new LearningAIV1(Turn.WHITE, neuralNetwork);
 
             final ResultCounter counter = new ResultCounter();
 
@@ -82,7 +82,7 @@ public class LearningLauncherV2 {
     }
 
     private static Pair<List<List<Short>>, List<List<Double>>> evaluation(
-            final NeuarlNetwork neuarlNetwork,
+            final NeuralNetwork neuralNetwork,
             final int num,
             final Turn turn
     ) {
@@ -95,12 +95,12 @@ public class LearningLauncherV2 {
         final BaseLearningAI whiteAI;
         switch (turn) {
             case BLACK:
-                blackAI = new TestAI(Turn.BLACK, neuarlNetwork);
+                blackAI = new TestAI(Turn.BLACK, neuralNetwork);
                 whiteAI = new RandomAI(Turn.WHITE);
                 break;
             default:
                 blackAI = new RandomAI(Turn.BLACK);
-                whiteAI = new TestAI(Turn.WHITE, neuarlNetwork);
+                whiteAI = new TestAI(Turn.WHITE, neuralNetwork);
         }
 
         IntStream.range(0, num).parallel().forEach(i -> {

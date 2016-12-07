@@ -1,11 +1,10 @@
 package game.LearningAI;
 
 import game.Object.Board;
-import game.Object.NeuarlNetwork;
+import game.Object.NeuralNetwork;
 import game.Object.Turn;
 
 import java.util.List;
-import java.util.Random;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -14,14 +13,14 @@ import java.util.stream.IntStream;
  */
 public class TestAI implements BaseLearningAI {
     private final Turn myTurn;
-    private final NeuarlNetwork neuarlNetwork;
+    private final NeuralNetwork neuralNetwork;
 
     public TestAI(
             final Turn myTurn,
-            final NeuarlNetwork neuarlNetwork
+            final NeuralNetwork neuralNetwork
     ) {
         this.myTurn = myTurn;
-        this.neuarlNetwork = neuarlNetwork;
+        this.neuralNetwork = neuralNetwork;
     }
 
     @Override
@@ -29,7 +28,7 @@ public class TestAI implements BaseLearningAI {
         final List<Board> nextBoardList = board.getChildBoardList(myTurn);
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)
-                .map(neuarlNetwork::forward)
+                .map(neuralNetwork::forward)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
 

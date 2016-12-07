@@ -7,3 +7,4 @@ target
 *.ckpt.meta
 *.iml
 project/project/
+*.pyc

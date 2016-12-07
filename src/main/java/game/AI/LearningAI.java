@@ -1,25 +1,21 @@
 package game.AI;
 
-import game.Object.Board;
-import game.Object.Cell;
-import game.Object.NeuarlNetwork;
-import game.Object.Position;
-import game.Object.Turn;
+import game.Object.*;
+import game.Object.NeuralNetwork;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class LearningAI implements BaseAI {
     private final Turn myTurn;
-    private final NeuarlNetwork neuarlNetwork;
+    private final NeuralNetwork neuralNetwork;
 
     public LearningAI(
             final Turn myTurn,
-            final NeuarlNetwork neuarlNetwork
+            final NeuralNetwork neuralNetwork
     ) {
         this.myTurn = myTurn;
-        this.neuarlNetwork = neuarlNetwork;
+        this.neuralNetwork = neuralNetwork;
     }
 
     @Override
@@ -32,7 +28,7 @@ public class LearningAI implements BaseAI {
         final List<Board> nextBoardList = board.getChildBoardList(myTurn);
         final List<Double> evaluationList = nextBoardList.stream()
                 .map(Board::convertToOneRowDoubleList)
-                .map(neuarlNetwork::forward)
+                .map(neuralNetwork::forward)
                 .map(this::getEvaluationalValue)
                 .collect(Collectors.toList());
 
@@ -41,7 +37,7 @@ public class LearningAI implements BaseAI {
                         .max((o1, o2) -> (int) ((o1 - o2) * 10000))
                         .get()
         );
-        neuarlNetwork.forward(nextBoardList.get(index).convertToOneRowDoubleList())
+        neuralNetwork.forward(nextBoardList.get(index).convertToOneRowDoubleList())
                 .forEach(num -> System.out.print(num + "/"));
         System.out.println();
         return getPutPosition(board.getBoard(), nextBoardList.get(index).getBoard());
